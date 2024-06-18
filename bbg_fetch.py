@@ -10,59 +10,62 @@ import datetime
 import numpy as np
 import pandas as pd
 from enum import Enum
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Union
 from xbbg import blp
 
 DEFAULT_START_DATE = pd.Timestamp('01Jan1959')
 VOLS_START_DATE = pd.Timestamp('03Jan2005')
 
 
-IMPVOL_FIELDS_MNY = {'30DAY_IMPVOL_800.0%MNY_DF': '30d80.0',
-                     '30DAY_IMPVOL_90.0%MNY_DF': '30d90.0',
-                     '30DAY_IMPVOL_95.0%MNY_DF': '30d95.0',
-                     '30DAY_IMPVOL_97.5%MNY_DF': '30d97.5',
-                     '30DAY_IMPVOL_100.0%MNY_DF': '30d100.0',
-                     '30DAY_IMPVOL_102.5%MNY_DF': '30d102.5',
-                     '30DAY_IMPVOL_105.0%MNY_DF': '30d105.0',
-                     '30DAY_IMPVOL_110.0%MNY_DF': '30d110.0',
-                     '30DAY_IMPVOL_120.0%MNY_DF': '30d120.0',
-                     '60DAY_IMPVOL_800.0%MNY_DF': '60d80.0',
-                     '60DAY_IMPVOL_90.0%MNY_DF': '60d90.0',
-                     '60DAY_IMPVOL_95.0%MNY_DF': '60d95.0',
-                     '60DAY_IMPVOL_97.5%MNY_DF': '60d97.5',
-                     '60DAY_IMPVOL_100.0%MNY_DF': '60d100.0',
-                     '60DAY_IMPVOL_102.5%MNY_DF': '60d102.5',
-                     '60DAY_IMPVOL_105.0%MNY_DF': '60d105.0',
-                     '60DAY_IMPVOL_110.0%MNY_DF': '60d110.0',
-                     '60DAY_IMPVOL_120.0%MNY_DF': '60d120.0',
-                     '3MTH_IMPVOL_800.0%MNY_DF': '3m80.0',
-                     '3MTH_IMPVOL_90.0%MNY_DF': '3m90.0',
-                     '3MTH_IMPVOL_95.0%MNY_DF': '3m95.0',
-                     '3MTH_IMPVOL_97.5%MNY_DF': '3m97.5',
-                     '3MTH_IMPVOL_100.0%MNY_DF': '3m100.0',
-                     '3MTH_IMPVOL_102.5%MNY_DF': '3m102.5',
-                     '3MTH_IMPVOL_105.0%MNY_DF': '3m105.0',
-                     '3MTH_IMPVOL_110.0%MNY_DF': '3m110.0',
-                     '3MTH_IMPVOL_120.0%MNY_DF': '3m120.0',
-                     '6MTH_IMPVOL_800.0%MNY_DF': '6m80.0',
-                     '6MTH_IMPVOL_90.0%MNY_DF': '6m90.0',
-                     '6MTH_IMPVOL_95.0%MNY_DF': '6m95.0',
-                     '6MTH_IMPVOL_97.5%MNY_DF': '6m97.5',
-                     '6MTH_IMPVOL_100.0%MNY_DF': '6m100.0',
-                     '6MTH_IMPVOL_102.5%MNY_DF': '6m102.5',
-                     '6MTH_IMPVOL_105.0%MNY_DF': '6m105.0',
-                     '6MTH_IMPVOL_110.0%MNY_DF': '6m110.0',
-                     '6MTH_IMPVOL_120.0%MNY_DF': '6m120.0',
-                     '12MTH_IMPVOL_800.0%MNY_DF': '12m80.0',
-                     '12MTH_IMPVOL_90.0%MNY_DF': '12m90.0',
-                     '12MTH_IMPVOL_95.0%MNY_DF': '12m95.0',
-                     '12MTH_IMPVOL_97.5%MNY_DF': '12m97.5',
-                     '12MTH_IMPVOL_100.0%MNY_DF': '12m100.0',
-                     '12MTH_IMPVOL_102.5%MNY_DF': '12m102.5',
-                     '12MTH_IMPVOL_105.0%MNY_DF': '12m105.0',
-                     '12MTH_IMPVOL_110.0%MNY_DF': '12m110.0',
-                     '12MTH_IMPVOL_120.0%MNY_DF': '12m120.0'
-                     }
+IMPVOL_FIELDS_MNY_30DAY = {'30DAY_IMPVOL_80%MNY_DF': '30d80.0',
+                           '30DAY_IMPVOL_90.0%MNY_DF': '30d90.0',
+                           '30DAY_IMPVOL_95.0%MNY_DF': '30d95.0',
+                           '30DAY_IMPVOL_97.5%MNY_DF': '30d97.5',
+                           '30DAY_IMPVOL_100.0%MNY_DF': '30d100.0',
+                           '30DAY_IMPVOL_102.5%MNY_DF': '30d102.5',
+                           '30DAY_IMPVOL_105.0%MNY_DF': '30d105.0',
+                           '30DAY_IMPVOL_110.0%MNY_DF': '30d110.0',
+                           '30DAY_IMPVOL_120%MNY_DF': '30d120.0'}
+
+IMPVOL_FIELDS_MNY_60DAY = {'60DAY_IMPVOL_80%MNY_DF': '60d80.0',
+                           '60DAY_IMPVOL_90.0%MNY_DF': '60d90.0',
+                           '60DAY_IMPVOL_95.0%MNY_DF': '60d95.0',
+                           '60DAY_IMPVOL_97.5%MNY_DF': '60d97.5',
+                           '60DAY_IMPVOL_100.0%MNY_DF': '60d100.0',
+                           '60DAY_IMPVOL_102.5%MNY_DF': '60d102.5',
+                           '60DAY_IMPVOL_105.0%MNY_DF': '60d105.0',
+                           '60DAY_IMPVOL_110.0%MNY_DF': '60d110.0',
+                           '60DAY_IMPVOL_120%MNY_DF': '60d120.0'}
+
+IMPVOL_FIELDS_MNY_3MTH = {'3MTH_IMPVOL_80%MNY_DF': '3m80.0',
+                          '3MTH_IMPVOL_90.0%MNY_DF': '3m90.0',
+                          '3MTH_IMPVOL_95.0%MNY_DF': '3m95.0',
+                          '3MTH_IMPVOL_97.5%MNY_DF': '3m97.5',
+                          '3MTH_IMPVOL_100.0%MNY_DF': '3m100.0',
+                          '3MTH_IMPVOL_102.5%MNY_DF': '3m102.5',
+                          '3MTH_IMPVOL_105.0%MNY_DF': '3m105.0',
+                          '3MTH_IMPVOL_110.0%MNY_DF': '3m110.0',
+                          '3MTH_IMPVOL_120%MNY_DF': '3m120.0'}
+
+IMPVOL_FIELDS_MNY_6MTH = {'6MTH_IMPVOL_80%MNY_DF': '6m80.0',
+                          '6MTH_IMPVOL_90.0%MNY_DF': '6m90.0',
+                          '6MTH_IMPVOL_95.0%MNY_DF': '6m95.0',
+                          '6MTH_IMPVOL_97.5%MNY_DF': '6m97.5',
+                          '6MTH_IMPVOL_100.0%MNY_DF': '6m100.0',
+                          '6MTH_IMPVOL_102.5%MNY_DF': '6m102.5',
+                          '6MTH_IMPVOL_105.0%MNY_DF': '6m105.0',
+                          '6MTH_IMPVOL_110.0%MNY_DF': '6m110.0',
+                          '6MTH_IMPVOL_120%MNY_DF': '6m120.0'}
+
+IMPVOL_FIELDS_MNY_12M = {'12MTH_IMPVOL_80%MNY_DF': '12m80.0',
+                         '12MTH_IMPVOL_90.0%MNY_DF': '12m90.0',
+                         '12MTH_IMPVOL_95.0%MNY_DF': '12m95.0',
+                         '12MTH_IMPVOL_97.5%MNY_DF': '12m97.5',
+                         '12MTH_IMPVOL_100.0%MNY_DF': '12m100.0',
+                         '12MTH_IMPVOL_102.5%MNY_DF': '12m102.5',
+                         '12MTH_IMPVOL_105.0%MNY_DF': '12m105.0',
+                         '12MTH_IMPVOL_110.0%MNY_DF': '12m110.0',
+                         '12MTH_IMPVOL_120%MNY_DF': '12m120.0'}
 
 IMPVOL_FIELDS_DELTA = {'1M_CALL_IMP_VOL_10DELTA_DFLT': '1MC10D.0',
                        '1M_CALL_IMP_VOL_25DELTA_DFLT': '1MC25D.0',
@@ -282,17 +285,31 @@ def fetch_futures_contract_table(ticker: str = "ESA Index",
 
 
 def fetch_vol_timeseries(ticker: str = 'SPX Index',
-                         vol_fields: Dict = IMPVOL_FIELDS_DELTA,
+                         vol_fields: Union[Dict, List] = IMPVOL_FIELDS_DELTA,
                          start_date: pd.Timestamp = VOLS_START_DATE,
                          rate_index: str = 'usgg3m Index',
                          add_underlying: bool = True,
                          rename: bool = True
                          ) -> pd.DataFrame:
-    df = 0.01*fetch_fields_timeseries_per_ticker(ticker=ticker,
-                                                 fields=list(vol_fields.keys()),
-                                                 start_date=start_date)
-    if rename:
-        df = df.rename(vol_fields, axis=1)
+
+    if isinstance(vol_fields, list):
+        dfs = []
+        for fields_ in vol_fields:
+            df = fetch_fields_timeseries_per_ticker(ticker=ticker,
+                                                    fields=list(fields_.keys()),
+                                                    start_date=start_date)
+            if rename:
+                df = df.rename(fields_, axis=1)
+            dfs.append(df)
+        df = pd.concat(dfs, axis=1)
+    else:
+        df = fetch_fields_timeseries_per_ticker(ticker=ticker,
+                                                fields=list(vol_fields.keys()),
+                                                start_date=start_date)
+        if rename:
+            df = df.rename(vol_fields, axis=1)
+    df = 0.01*df
+
     if add_underlying:
         price = fetch_fields_timeseries_per_ticker(ticker=ticker,
                                                    fields=['PX_LAST', 'EQY_DVD_YLD_12M'],
@@ -355,7 +372,9 @@ def run_unit_test(unit_test: UnitTests):
         print(df)
 
     elif unit_test == UnitTests.IMPLIED_VOL_TIME_SERIES:
-        df = fetch_vol_timeseries(ticker='SPX Index', vol_fields=IMPVOL_FIELDS_DELTA)
+        df = fetch_vol_timeseries(ticker='SPX Index', vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
+                                                                  IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
+                                                                  IMPVOL_FIELDS_MNY_12M])
         print(df)
 
 
