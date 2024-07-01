@@ -16,6 +16,26 @@ from xbbg import blp
 DEFAULT_START_DATE = pd.Timestamp('01Jan1959')
 VOLS_START_DATE = pd.Timestamp('03Jan2005')
 
+FX_DICT = {
+    'EURUSD Curncy': 'EUR',
+    'GBPUSD Curncy': 'GBP',
+    'CHFUSD Curncy': 'CHF',
+    'CADUSD Curncy': 'CAD',
+    'JPYUSD Curncy': 'JPY',
+    'AUDUSD Curncy': 'AUD',
+    'NZDUSD Curncy': 'NZD',
+    'MXNUSD Curncy': 'MXN',
+    'HKDUSD Curncy': 'HKD',
+    'SEKUSD Curncy': 'SEK',
+    'PLNUSD Curncy': 'PLN',
+    'KRWUSD Curncy': 'KRW',
+    'TRYUSD Curncy': 'TRY',
+    'SGDUSD Curncy': 'SGD',
+    'ZARUSD Curncy': 'ZAR',
+    'CNYUSD Curncy': 'CNY',
+    'INRUSD Curncy': 'INR'
+}
+
 
 IMPVOL_FIELDS_MNY_30DAY = {'30DAY_IMPVOL_80%MNY_DF': '30d80.0',
                            '30DAY_IMPVOL_90.0%MNY_DF': '30d90.0',
@@ -231,6 +251,7 @@ def fetch_futures_contract_table(ticker: str = "ESA Index",
                                                     'volume', 'volume_avg_5d', 'open_int',
                                                     'fut_cont_size',
                                                     'contract_value',
+                                                    'fut_val_pt',
                                                     'quoted_crncy',
                                                     'fut_days_expire',
                                                     'px_settle_last_dt',
@@ -321,8 +342,19 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
                                                           start_date=start_date)
         rate_3m = rate_3m.rename({'PX_LAST': 'rf_rate'}, axis=1)
         # drop row when vols are missing
-        df = pd.concat([price, rate_3m, df], axis=1).dropna(axis=0, subset=df.columns, how='all')
+        df = pd.concat([price, rate_3m, df], axis=1)#.dropna(axis=0, subset=df.columns, how='all')
     return df
+
+
+def fetch_last_prices(tickers: Union[List, Dict] = FX_DICT) -> pd.Series:
+    if isinstance(tickers, Dict):
+        tickers1 = list(tickers.keys())
+    else:
+        tickers1 = tickers
+    df = blp.bdp(tickers=tickers1, flds='px_last')
+    if isinstance(tickers, Dict):
+        df = df.rename(tickers, axis=0)
+    return df.iloc[:, 0]
 
 
 class UnitTests(Enum):
@@ -332,6 +364,7 @@ class UnitTests(Enum):
     ACTIVE_FUTURES = 4
     CONTRACT_TABLE = 5
     IMPLIED_VOL_TIME_SERIES = 6
+    LAST_PRICES = 7
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -352,13 +385,14 @@ def run_unit_test(unit_test: UnitTests):
 
     elif unit_test == UnitTests.FIELD_PER_TICKERS:
         # df = fetch_field_timeseries_per_tickers(tickers=['AAPL US Equity', 'OCBC SP Equity', '6920 JP Equity'], field='30DAY_IMPVOL_100.0%MNY_DF')
-        df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
-                                                CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
+        # df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
+        #                                         CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
+        #df = fetch_field_timeseries_per_tickers(tickers=['CSBC1U5 PRXY Curncy'], field='PX_LAST')
+        #print(df)
+        # PRXY CBGN
+        # df = fetch_field_timeseries_per_tickers(tickers=['CGIS1U5 CBGN Curncy'], field='PX_LAST')
+        df = fetch_field_timeseries_per_tickers(tickers=['CSBC1U5 CBGN Curncy'], field='PX_LAST')
         print(df)
-
-        # this = blp.bds("ESA Index", "FUT_CHAIN")
-        # this = blp.bds("SPY US Equity", "opt_chain", single_date_override="20191010")
-        # print(this)
 
     elif unit_test == UnitTests.ACTIVE_FUTURES:
         # field_data = blp.active_futures('ESA Index', dt='1997-09-10')
@@ -377,10 +411,14 @@ def run_unit_test(unit_test: UnitTests):
                                                                   IMPVOL_FIELDS_MNY_12M])
         print(df)
 
+    elif unit_test == UnitTests.LAST_PRICES:
+        fx_prices = fetch_last_prices()
+        print(fx_prices)
+
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.IMPLIED_VOL_TIME_SERIES
+    unit_test = UnitTests.LAST_PRICES
 
     is_run_all_tests = False
     if is_run_all_tests:
