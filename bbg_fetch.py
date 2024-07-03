@@ -1,5 +1,6 @@
 """
 pip install --index-url=https://bcms.bloomberg.com/pip/simple blpapi
+pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
 GFUT
 """
 
@@ -357,6 +358,25 @@ def fetch_last_prices(tickers: Union[List, Dict] = FX_DICT) -> pd.Series:
     return df.iloc[:, 0]
 
 
+def fetch_bond_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
+                    fields: List[str] = ['id_bb', 'name',  'security_des',
+                                         'ult_parent_ticker_exchange', 'crncy', 'amt_outstanding',
+                                         'px_last',
+                                         'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur']
+                    ) -> pd.DataFrame:
+    issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields)
+    # process US03522AAH32 corp to US03522AAH32
+    issue_data.insert(loc=0, column='isin', value=[x.split(' ')[0] for x in issue_data.index])
+    issue_data = issue_data.reset_index(names='isin_corp').set_index('isin')
+    issue_data = issue_data.reindex(index=isins)
+    return issue_data
+
+
+def fetch_cds_info(equity_tickers: List[str] = ['ABI BB Equity', 'CVS US Equity']) -> pd.DataFrame:
+    cds_rate_tickers = blp.bdp(tickers=equity_tickers, flds='cds_spread_ticker_5y')
+    return cds_rate_tickers
+
+
 class UnitTests(Enum):
     FUNDAMENTALS = 1
     FIELDS_PER_TICKER = 2
@@ -365,6 +385,9 @@ class UnitTests(Enum):
     CONTRACT_TABLE = 5
     IMPLIED_VOL_TIME_SERIES = 6
     LAST_PRICES = 7
+    CDS = 8
+    BOND_INFO = 9
+    CDS_INFO = 10
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -415,10 +438,23 @@ def run_unit_test(unit_test: UnitTests):
         fx_prices = fetch_last_prices()
         print(fx_prices)
 
+    elif unit_test == UnitTests.CDS:
+        df = fetch_field_timeseries_per_tickers(
+            tickers=['CCVS1U5 CBGN Curncy', 'CCVS1U5 DRSK Curncy', 'CCVS1U5 BEST Curncy'], field='PX_LAST')
+        print(df)
+
+    elif unit_test == UnitTests.BOND_INFO:
+        data = fetch_bond_info()
+        print(data)
+
+    elif unit_test == UnitTests.CDS_INFO:
+        data = fetch_cds_info()
+        print(data)
+
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.LAST_PRICES
+    unit_test = UnitTests.CDS_INFO
 
     is_run_all_tests = False
     if is_run_all_tests:
