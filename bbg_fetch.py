@@ -177,7 +177,6 @@ def fetch_field_timeseries_per_tickers(tickers: List[str],
         field_data.columns = field_data.columns.droplevel(1)  # eliminate multiindex
     except:
         warnings.warn(f"something is wrong for field={field}")
-        print(field_data)
         return None
 
     # make sure all columns are returns
@@ -269,8 +268,8 @@ def fetch_futures_contract_table(ticker: str = "ESA Index",
     if not contracts.empty:
         tickers = contracts['security_description']
         df = blp.bdp(tickers=tickers, flds=flds)
-        tradable_tickers = tickers[np.in1d(tickers, df.index, assume_unique=True)]
-        good_columns = pd.Index(flds)[np.in1d(flds, df.columns, assume_unique=True)]
+        tradable_tickers = tickers[np.isin(tickers, df.index, assume_unique=True)]
+        good_columns = pd.Index(flds)[np.isin(flds, df.columns, assume_unique=True)]
         df = df.loc[tradable_tickers, good_columns]
 
         if add_timestamp:
@@ -374,7 +373,30 @@ def fetch_bond_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
 
 def fetch_cds_info(equity_tickers: List[str] = ['ABI BB Equity', 'CVS US Equity']) -> pd.DataFrame:
     cds_rate_tickers = blp.bdp(tickers=equity_tickers, flds='cds_spread_ticker_5y')
+    cds_rate_tickers = cds_rate_tickers.reindex(index=equity_tickers)
     return cds_rate_tickers
+
+
+def fetch_balance_data(tickers: List[str] = ['ABI BB Equity', 'T US Equity', 'JPM US Equity'],
+                       fields: List[str] = ['GICS_SECTOR_NAME', 'BB_ISSR_COMP_BSE_ON_RTGS', 'TOT_COMMON_EQY',
+                                            'BS_LT_BORROW', 'BS_ST_BORROW', 'EQY_FUND_CRNCY',
+                                            'EARN_YLD',
+                                            'RETURN_ON_ASSETS_ADJUSTED',
+                                            'NET_DEBT_TO_FFCF',
+                                            'NET_DEBT_TO_CASHFLOW',
+                                            'FREE_CASH_FLOW_MARGIN',
+                                            'CFO_TO_SALES',
+                                            'NET_DEBT_PCT_OF_TOT_CAPITAL',
+                                            'INTEREST_COVERAGE_RATIO',
+                                            'BS_LIQUIDITY_COVERAGE_RATIO',
+                                            'NET_DEBT_TO_EBITDA',
+                                            'T12_FCF_T12_EBITDA']
+                       ) -> pd.DataFrame:
+    issue_data = blp.bdp(tickers, fields)
+    issue_data = issue_data.rename({x: x.upper() for x in issue_data.columns}, axis=1)
+    issue_data = issue_data.loc[tickers, fields]
+
+    return issue_data
 
 
 class UnitTests(Enum):
@@ -388,6 +410,7 @@ class UnitTests(Enum):
     CDS = 8
     BOND_INFO = 9
     CDS_INFO = 10
+    BALANCE_DATA = 11
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -440,7 +463,7 @@ def run_unit_test(unit_test: UnitTests):
 
     elif unit_test == UnitTests.CDS:
         df = fetch_field_timeseries_per_tickers(
-            tickers=['CCVS1U5 CBGN Curncy', 'CCVS1U5 DRSK Curncy', 'CCVS1U5 BEST Curncy'], field='PX_LAST')
+            tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
         print(df)
 
     elif unit_test == UnitTests.BOND_INFO:
@@ -451,10 +474,14 @@ def run_unit_test(unit_test: UnitTests):
         data = fetch_cds_info()
         print(data)
 
+    elif unit_test == UnitTests.BALANCE_DATA:
+        data = fetch_balance_data(tickers=['ABI BB Equity', 'T US Equity', 'JPM US Equity', 'BAC US Equity'])
+        print(data)
+
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.CDS_INFO
+    unit_test = UnitTests.BALANCE_DATA
 
     is_run_all_tests = False
     if is_run_all_tests:
