@@ -34,7 +34,9 @@ FX_DICT = {
     'SGDUSD Curncy': 'SGD',
     'ZARUSD Curncy': 'ZAR',
     'CNYUSD Curncy': 'CNY',
-    'INRUSD Curncy': 'INR'
+    'INRUSD Curncy': 'INR',
+    'TWDUSD Curncy': 'TWD',
+    'NOKUSD Curncy': 'NOK'
 }
 
 
@@ -112,7 +114,7 @@ def fetch_fundamentals(tickers: List[str],
                        fields: List[str] = ('Security_Name', 'GICS_Sector_Name',)
                        ) -> pd.DataFrame:
     df = blp.bdp(tickers=tickers, flds=fields)
-    df = df.loc[tickers, :]
+    df = df.reindex(index=tickers).reindex(columns=fields)
     return df
 
 
@@ -141,12 +143,7 @@ def fetch_fields_timeseries_per_ticker(ticker: str,
         return None
 
     if len(fields) > 1:
-        try:
-            field_data = field_data[fields]  # rearrange columns
-        except:
-            # incomplete field data
-            warnings.warn(f"could not get field_data for ticker={ticker}")
-            return None
+        field_data = field_data.reindex(columns=fields)  # rearrange columns
     else:
         pass
 
@@ -164,14 +161,10 @@ def fetch_field_timeseries_per_tickers(tickers: List[str],
                                        end_date: pd.Timestamp = pd.Timestamp.now()
                                        ) -> Optional[pd.DataFrame]:
 
-    #try:
-        # get bloomberg data adjusted for splits and divs
+    """
+    get bloomberg data adjusted for splits and divs
+    """
     field_data = blp.bdh(tickers, field, start_date, end_date, CshAdjNormal=CshAdjNormal, CshAdjAbnormal=CshAdjAbnormal, CapChg=CapChg)
-    #field_data = blp.bdh(tickers, field, start_date, end_date)
-    # field_data = blp.bdp(tickers, field)
-    #except:
-    #   warnings.warn(f"could not get field_data for field={field}")
-    #    return None
 
     try:
         field_data.columns = field_data.columns.droplevel(1)  # eliminate multiindex
@@ -394,9 +387,31 @@ def fetch_balance_data(tickers: List[str] = ['ABI BB Equity', 'T US Equity', 'JP
                        ) -> pd.DataFrame:
     issue_data = blp.bdp(tickers, fields)
     issue_data = issue_data.rename({x: x.upper() for x in issue_data.columns}, axis=1)
-    issue_data = issue_data.loc[tickers, fields]
+    issue_data = issue_data.reindex(index=tickers).reindex(columns=fields)
 
     return issue_data
+
+
+def fetch_tickers_from_isins(isins: List[str] = ['US88160R1014', 'IL0065100930']) -> pd.DataFrame:
+    tickers = {f"/ISIN/{x}": x for x in isins}
+    df = blp.bdp(list(tickers.keys()), "PARSEKYABLE_DES")
+    df.index = df.index.map(tickers)  # map back to isins
+    df = df.reindex(index=isins)
+    return df
+
+
+"""
+def fetch_option_underlying_tickers_from_isins(isins: List[str] = ['DE000C77PRU9', 'YY0160552733']) -> pd.DataFrame:
+    tickers = {f"/cusip/{x} Corp": x for x in isins}
+    # tickers = {f"{x}@BGN Corp": x for x in isins}
+    df = blp.bdp(list(tickers.keys()), "PARSEKYABLE_DES")
+    print(df)
+    df = blp.bdp(list(tickers.keys()), "OPT_UNDL_TICKER")
+    print(df)
+    df.index = df.index.map(tickers)  # map back to isins
+    df = df.reindex(index=isins)
+    return df
+"""
 
 
 class UnitTests(Enum):
@@ -411,6 +426,8 @@ class UnitTests(Enum):
     BOND_INFO = 9
     CDS_INFO = 10
     BALANCE_DATA = 11
+    TICKERS_FROM_ISIN = 12
+    # OPTION_UNDERLYING_FROM_ISIN = 14
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -478,10 +495,20 @@ def run_unit_test(unit_test: UnitTests):
         data = fetch_balance_data(tickers=['ABI BB Equity', 'T US Equity', 'JPM US Equity', 'BAC US Equity'])
         print(data)
 
+    elif unit_test == UnitTests.TICKERS_FROM_ISIN:
+        df = fetch_tickers_from_isins()
+        print(df)
+
+    """
+    elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
+        df = fetch_option_underlying_tickers_from_isins()
+        print(df)
+    """
+
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.BALANCE_DATA
+    unit_test = UnitTests.LAST_PRICES
 
     is_run_all_tests = False
     if is_run_all_tests:
