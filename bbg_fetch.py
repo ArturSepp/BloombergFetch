@@ -400,6 +400,39 @@ def fetch_tickers_from_isins(isins: List[str] = ['US88160R1014', 'IL0065100930']
     return df
 
 
+def fetch_dividend_history(ticker: str = 'TIP US Equity') -> pd.DataFrame:
+    """
+    df.columns = ['declared_date', 'ex_date', 'record_date', 'payable_date',
+       'dividend_amount', 'dividend_frequency', 'dividend_type']
+    """
+    this = blp.bds(ticker, 'dvd_hist_all')
+    return this
+
+
+def fetch_div_yields(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    divs = {}
+    divs_1y = {}
+    for ticker in tickers:
+        div = fetch_dividend_history(ticker=ticker)
+        valid_div = div.loc[div['dividend_type'] == 'Income', :].set_index('ex_date')  # set ex_date index
+        valid_div.index = pd.to_datetime(valid_div.index)
+        valid_div = valid_div.sort_index()
+        div_freq = valid_div['dividend_frequency'].iloc[-1]
+        if div_freq == 'Monthly': # extrapolate to 1y
+            roll_period = 12
+            an_factor = 1.0
+        elif div_freq == 'Quarter': # extrapolate to 1y
+            roll_period = 4
+            an_factor = 1.0
+        else:
+            raise NotImplementedError(f"div_freq = {div_freq}")
+        divs[ticker] = valid_div['dividend_amount']
+        divs_1y[ticker] = an_factor * valid_div['dividend_amount'].rolling(roll_period).sum()
+    divs = pd.DataFrame.from_dict(divs, orient='columns')
+    divs_1y = pd.DataFrame.from_dict(divs_1y, orient='columns')
+    return divs, divs_1y
+
+
 """
 def fetch_option_underlying_tickers_from_isins(isins: List[str] = ['DE000C77PRU9', 'YY0160552733']) -> pd.DataFrame:
     tickers = {f"/cusip/{x} Corp": x for x in isins}
@@ -428,6 +461,7 @@ class UnitTests(Enum):
     BALANCE_DATA = 11
     TICKERS_FROM_ISIN = 12
     # OPTION_UNDERLYING_FROM_ISIN = 14
+    DIVIDEND = 14
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -499,6 +533,9 @@ def run_unit_test(unit_test: UnitTests):
         df = fetch_tickers_from_isins()
         print(df)
 
+    elif unit_test == UnitTests.DIVIDEND:
+        this = fetch_dividend_history(ticker='TIP US Equity')
+        print(this)
     """
     elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
         df = fetch_option_underlying_tickers_from_isins()
@@ -508,7 +545,7 @@ def run_unit_test(unit_test: UnitTests):
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.LAST_PRICES
+    unit_test = UnitTests.DIVIDEND
 
     is_run_all_tests = False
     if is_run_all_tests:
