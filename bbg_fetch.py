@@ -158,7 +158,8 @@ def fetch_field_timeseries_per_tickers(tickers: List[str],
                                        CshAdjAbnormal: bool = True,
                                        CapChg: bool = True,
                                        start_date: pd.Timestamp = DEFAULT_START_DATE,
-                                       end_date: pd.Timestamp = pd.Timestamp.now()
+                                       end_date: pd.Timestamp = pd.Timestamp.now(),
+                                       freq: str = None
                                        ) -> Optional[pd.DataFrame]:
 
     """
@@ -176,6 +177,8 @@ def fetch_field_timeseries_per_tickers(tickers: List[str],
     field_data = field_data.reindex(columns=tickers)
     field_data.index = pd.to_datetime(field_data.index)
     field_data = field_data.sort_index()
+    if freq is not None:
+        field_data = field_data.asfreq(freq, method='ffill')
     return field_data
 
 
@@ -414,22 +417,27 @@ def fetch_div_yields(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     divs_1y = {}
     for ticker in tickers:
         div = fetch_dividend_history(ticker=ticker)
-        valid_div = div.loc[div['dividend_type'] == 'Income', :].set_index('ex_date')  # set ex_date index
-        valid_div.index = pd.to_datetime(valid_div.index)
-        valid_div = valid_div.sort_index()
-        div_freq = valid_div['dividend_frequency'].iloc[-1]
-        if div_freq == 'Monthly': # extrapolate to 1y
-            roll_period = 12
-            an_factor = 1.0
-        elif div_freq == 'Quarter': # extrapolate to 1y
-            roll_period = 4
-            an_factor = 1.0
-        else:
-            raise NotImplementedError(f"div_freq = {div_freq}")
-        divs[ticker] = valid_div['dividend_amount']
-        divs_1y[ticker] = an_factor * valid_div['dividend_amount'].rolling(roll_period).sum()
-    divs = pd.DataFrame.from_dict(divs, orient='columns')
-    divs_1y = pd.DataFrame.from_dict(divs_1y, orient='columns')
+        if not div.empty:
+            valid_div = div.loc[div['dividend_type'] == 'Income', :].set_index('ex_date')  # set ex_date index
+            if not div.empty and len(valid_div.index) > 0:
+                valid_div.index = pd.to_datetime(valid_div.index)
+                valid_div = valid_div.sort_index()
+                div_freq = valid_div['dividend_frequency'].iloc[-1]
+                if div_freq == 'Monthly': # extrapolate to 1y
+                    roll_period = 12
+                    an_factor = 1.0
+                elif div_freq == 'Quarter': # extrapolate to 1y
+                    roll_period = 4
+                    an_factor = 1.0
+                elif div_freq == 'Annual': # extrapolate to 1y
+                    roll_period = 1
+                    an_factor = 1.0
+                else:
+                    raise NotImplementedError(f"div_freq = {div_freq}")
+                divs[ticker] = valid_div['dividend_amount']
+                divs_1y[ticker] = an_factor * valid_div['dividend_amount'].rolling(roll_period).sum()
+    divs = pd.DataFrame.from_dict(divs, orient='columns').reindex(columns=tickers)
+    divs_1y = pd.DataFrame.from_dict(divs_1y, orient='columns').reindex(columns=tickers)
     return divs, divs_1y
 
 
@@ -534,7 +542,7 @@ def run_unit_test(unit_test: UnitTests):
         print(df)
 
     elif unit_test == UnitTests.DIVIDEND:
-        this = fetch_dividend_history(ticker='TIP US Equity')
+        this = fetch_dividend_history(ticker='ERNA LN Equity')
         print(this)
     """
     elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
