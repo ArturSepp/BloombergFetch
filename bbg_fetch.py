@@ -418,7 +418,8 @@ def fetch_div_yields(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     for ticker in tickers:
         div = fetch_dividend_history(ticker=ticker)
         if not div.empty:
-            valid_div = div.loc[div['dividend_type'] == 'Income', :].set_index('ex_date')  # set ex_date index
+            valid_div_cond = div['dividend_type'].apply(lambda x: x in ['Income', 'Distribution'])
+            valid_div = div.loc[valid_div_cond, :].set_index('ex_date')  # set ex_date index
             if not div.empty and len(valid_div.index) > 0:
                 valid_div.index = pd.to_datetime(valid_div.index)
                 valid_div = valid_div.sort_index()
@@ -428,6 +429,9 @@ def fetch_div_yields(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
                     an_factor = 1.0
                 elif div_freq == 'Quarter': # extrapolate to 1y
                     roll_period = 4
+                    an_factor = 1.0
+                elif div_freq == 'Semi-Anl': # extrapolate to 1y
+                    roll_period = 2
                     an_factor = 1.0
                 elif div_freq == 'Annual': # extrapolate to 1y
                     roll_period = 1
@@ -542,8 +546,10 @@ def run_unit_test(unit_test: UnitTests):
         print(df)
 
     elif unit_test == UnitTests.DIVIDEND:
-        this = fetch_dividend_history(ticker='ERNA LN Equity')
+        this = fetch_dividend_history(ticker='SDHA LN Equity')
         print(this)
+        divs, divs_1y = fetch_div_yields(tickers=['AHYG SP Equity'])
+        print(divs_1y)
     """
     elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
         df = fetch_option_underlying_tickers_from_isins()
