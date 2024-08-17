@@ -108,8 +108,6 @@ IMPVOL_FIELDS_DELTA = {'1M_CALL_IMP_VOL_10DELTA_DFLT': '1MC10D.0',
                        '2M_PUT_IMP_VOL_10DELTA_DFLT': '2MP10D.0'
                        }
 
-
-
 def fetch_fundamentals(tickers: List[str],
                        fields: List[str] = ('Security_Name', 'GICS_Sector_Name',)
                        ) -> pd.DataFrame:
@@ -152,7 +150,7 @@ def fetch_fields_timeseries_per_ticker(ticker: str,
     return field_data
 
 
-def fetch_field_timeseries_per_tickers(tickers: List[str],
+def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]],
                                        field: str = 'PX_LAST',
                                        CshAdjNormal: bool = True,
                                        CshAdjAbnormal: bool = True,
@@ -161,11 +159,18 @@ def fetch_field_timeseries_per_tickers(tickers: List[str],
                                        end_date: pd.Timestamp = pd.Timestamp.now(),
                                        freq: str = None
                                        ) -> Optional[pd.DataFrame]:
-
     """
     get bloomberg data adjusted for splits and divs
+    tickers can be a dict {'ES1 Index': 'SPY', 'UXY1 Comdty': '10yUST'}, then df columns are renamed
     """
-    field_data = blp.bdh(tickers, field, start_date, end_date, CshAdjNormal=CshAdjNormal, CshAdjAbnormal=CshAdjAbnormal, CapChg=CapChg)
+    if isinstance(tickers, list):
+        tickers_ = tickers
+    elif isinstance(tickers, dict):
+        tickers_ = list(tickers.keys())
+    else:
+        raise NotImplemented(f"type={type(tickers)}")
+    field_data = blp.bdh(tickers_, field, start_date, end_date, CshAdjNormal=CshAdjNormal,
+                         CshAdjAbnormal=CshAdjAbnormal, CapChg=CapChg)
 
     try:
         field_data.columns = field_data.columns.droplevel(1)  # eliminate multiindex
@@ -174,13 +179,17 @@ def fetch_field_timeseries_per_tickers(tickers: List[str],
         return None
 
     # make sure all columns are returns
-    field_data = field_data.reindex(columns=tickers)
     field_data.index = pd.to_datetime(field_data.index)
     field_data = field_data.sort_index()
     if freq is not None:
         field_data = field_data.asfreq(freq, method='ffill')
-    return field_data
 
+    # align columns
+    field_data = field_data.reindex(columns=tickers_)
+    if isinstance(tickers, dict):
+        field_data = field_data.rename(tickers, axis=1)
+
+    return field_data
 
 def fetch_active_futures(generic_ticker: str = 'ES1 Index',
                          first_gen: int = 1
