@@ -108,12 +108,47 @@ IMPVOL_FIELDS_DELTA = {'1M_CALL_IMP_VOL_10DELTA_DFLT': '1MC10D.0',
                        '2M_PUT_IMP_VOL_10DELTA_DFLT': '2MP10D.0'
                        }
 
-def fetch_fundamentals(tickers: List[str],
-                       fields: List[str] = ('Security_Name', 'GICS_Sector_Name',)
-                       ) -> pd.DataFrame:
-    df = blp.bdp(tickers=tickers, flds=fields)
-    df = df.reindex(index=tickers).reindex(columns=fields)
-    return df
+
+def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]],
+                                       field: str = 'PX_LAST',
+                                       CshAdjNormal: bool = True,
+                                       CshAdjAbnormal: bool = True,
+                                       CapChg: bool = True,
+                                       start_date: pd.Timestamp = DEFAULT_START_DATE,
+                                       end_date: pd.Timestamp = pd.Timestamp.now(),
+                                       freq: str = None
+                                       ) -> Optional[pd.DataFrame]:
+    """
+    get bloomberg field data adjusted for splits and divs for a list of tickers
+    tickers can be a dict {'ES1 Index': 'SPY', 'UXY1 Comdty': '10yUST'}, then df columns are renamed
+    """
+    if isinstance(tickers, list):
+        tickers_ = tickers
+    elif isinstance(tickers, dict):
+        tickers_ = list(tickers.keys())
+    else:
+        raise NotImplemented(f"type={type(tickers)}")
+    field_data = blp.bdh(tickers_, field, start_date, end_date, CshAdjNormal=CshAdjNormal,
+                         CshAdjAbnormal=CshAdjAbnormal, CapChg=CapChg)
+
+    try:
+        field_data.columns = field_data.columns.droplevel(1)  # eliminate multiindex
+    except:
+        warnings.warn(f"something is wrong for field={field}")
+        return None
+
+    # make sure all columns are returned
+    field_data.index = pd.to_datetime(field_data.index)
+    field_data = field_data.sort_index()
+    if freq is not None:
+        field_data = field_data.asfreq(freq, method='ffill')
+
+    # align columns
+    field_data = field_data.reindex(columns=tickers_)
+    if isinstance(tickers, dict):
+        field_data = field_data.rename(tickers, axis=1)
+
+    return field_data
 
 
 def fetch_fields_timeseries_per_ticker(ticker: str,
@@ -124,7 +159,9 @@ def fetch_fields_timeseries_per_ticker(ticker: str,
                                        start_date: pd.Timestamp = DEFAULT_START_DATE,
                                        end_date: pd.Timestamp = pd.Timestamp.now()
                                        ) -> Optional[pd.DataFrame]:
-
+    """
+    get bloomberg fields data adjusted for splits and divs for given ticker
+    """
     try:
         # get bloomberg data adjusted for splits and divs
         field_data = blp.bdh(ticker, fields, start_date, end_date,
@@ -150,46 +187,14 @@ def fetch_fields_timeseries_per_ticker(ticker: str,
     return field_data
 
 
-def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]],
-                                       field: str = 'PX_LAST',
-                                       CshAdjNormal: bool = True,
-                                       CshAdjAbnormal: bool = True,
-                                       CapChg: bool = True,
-                                       start_date: pd.Timestamp = DEFAULT_START_DATE,
-                                       end_date: pd.Timestamp = pd.Timestamp.now(),
-                                       freq: str = None
-                                       ) -> Optional[pd.DataFrame]:
-    """
-    get bloomberg data adjusted for splits and divs
-    tickers can be a dict {'ES1 Index': 'SPY', 'UXY1 Comdty': '10yUST'}, then df columns are renamed
-    """
-    if isinstance(tickers, list):
-        tickers_ = tickers
-    elif isinstance(tickers, dict):
-        tickers_ = list(tickers.keys())
-    else:
-        raise NotImplemented(f"type={type(tickers)}")
-    field_data = blp.bdh(tickers_, field, start_date, end_date, CshAdjNormal=CshAdjNormal,
-                         CshAdjAbnormal=CshAdjAbnormal, CapChg=CapChg)
+def fetch_fundamentals(tickers: List[str],
+                       fields: List[str] = ('security_name', 'gics_sector_name',)
+                       ) -> pd.DataFrame:
+    df = blp.bdp(tickers=tickers, flds=fields)
+    # align with given order of tickers and fields
+    df = df.reindex(index=tickers).reindex(columns=fields)
+    return df
 
-    try:
-        field_data.columns = field_data.columns.droplevel(1)  # eliminate multiindex
-    except:
-        warnings.warn(f"something is wrong for field={field}")
-        return None
-
-    # make sure all columns are returns
-    field_data.index = pd.to_datetime(field_data.index)
-    field_data = field_data.sort_index()
-    if freq is not None:
-        field_data = field_data.asfreq(freq, method='ffill')
-
-    # align columns
-    field_data = field_data.reindex(columns=tickers_)
-    if isinstance(tickers, dict):
-        field_data = field_data.rename(tickers, axis=1)
-
-    return field_data
 
 def fetch_active_futures(generic_ticker: str = 'ES1 Index',
                          first_gen: int = 1
@@ -228,26 +233,6 @@ def fetch_active_futures(generic_ticker: str = 'ES1 Index',
     return price_data.iloc[:, 0], price_data.iloc[:, 1]
 
 
-def instrument_to_active_ticker(instrument: str = 'ES1 Index', num: int = 1) -> str:
-    """
-    ES1 Index to ES{num} Index
-    Z1 Index to Z 1 Index
-    """
-    head = contract_to_instrument(instrument)
-    ticker_split = instrument.split(' ')
-    mid = "" if len(ticker_split[0]) > 1 else " "
-    active_ticker = f"{head}{mid}{num} {ticker_split[-1]}"
-    return active_ticker
-
-
-def contract_to_instrument(future: str) -> str:
-    """
-    ES1 Index to ES Index
-    """
-    ticker_split_wo_num = re.sub('\d+', '', future).split()
-    return ticker_split_wo_num[0]
-
-
 def fetch_futures_contract_table(ticker: str = "ESA Index",
                                  flds: List[str] = ('name',
                                                     'px_settle',
@@ -265,8 +250,12 @@ def fetch_futures_contract_table(ticker: str = "ESA Index",
                                                     'last_update'),
                                  add_timestamp: bool = True,
                                  add_gen_number: bool = True,
-                                 add_carry: bool = True
+                                 add_carry: bool = True,
+                                 tz: Optional[str] = 'UTC'
                                  ) -> pd.DataFrame:
+    """
+    fetch contract table for active futures
+    """
     contracts = blp.bds(ticker, "FUT_CHAIN")
     if contracts.empty:
         contracts = blp.bds(ticker, "FUT_CHAIN")
@@ -282,9 +271,9 @@ def fetch_futures_contract_table(ticker: str = "ESA Index",
             # last_update can be date.time
             for idx, (x, y) in enumerate(zip(df['last_update_dt'], df['last_update'])):
                 if isinstance(y, datetime.time):
-                    timestamps.iloc[idx] = pd.Timestamp.combine(x, y).tz_localize(tz='CET').tz_convert('UTC')
+                    timestamps.iloc[idx] = pd.Timestamp.combine(x, y).tz_localize(tz='CET').tz_convert(tz)
                 elif isinstance(x, datetime.date):
-                    timestamps.iloc[idx] = pd.Timestamp.combine(x, datetime.time(0,0,0)).tz_localize('UTC')
+                    timestamps.iloc[idx] = pd.Timestamp.combine(x, datetime.time(0,0,0)).tz_localize(tz)
             df['update'] = timestamps
             df['timestamp'] = pd.Timestamp.utcnow()
             df = df.drop(['last_update_dt', 'last_update'], axis=1)
@@ -315,9 +304,12 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
                          start_date: pd.Timestamp = VOLS_START_DATE,
                          rate_index: str = 'usgg3m Index',
                          add_underlying: bool = True,
-                         rename: bool = True
+                         rename: bool = True,
+                         scaler: Optional[float] = 0.01
                          ) -> pd.DataFrame:
-
+    """
+    fetch imlied vols specified in  vol_fields
+    """
     if isinstance(vol_fields, list):
         dfs = []
         for fields_ in vol_fields:
@@ -334,17 +326,21 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
                                                 start_date=start_date)
         if rename:
             df = df.rename(vol_fields, axis=1)
-    df = 0.01*df
+    if scaler is not None:
+        df *= scaler
 
     if add_underlying:
         price = fetch_fields_timeseries_per_ticker(ticker=ticker,
                                                    fields=['PX_LAST', 'EQY_DVD_YLD_12M'],
                                                    start_date=start_date)
-        price['EQY_DVD_YLD_12M'] *= 0.01
+        if scaler is not None:
+            price['EQY_DVD_YLD_12M'] *= scaler
         price = price.rename({'PX_LAST': 'spot_price', 'EQY_DVD_YLD_12M': 'div_yield'}, axis=1)
-        rate_3m = 0.01*fetch_fields_timeseries_per_ticker(ticker=rate_index,
-                                                          fields=['PX_LAST'],
-                                                          start_date=start_date)
+        rate_3m = fetch_fields_timeseries_per_ticker(ticker=rate_index,
+                                                     fields=['PX_LAST'],
+                                                     start_date=start_date)
+        if scaler is not None:
+            rate_3m *= scaler
         rate_3m = rate_3m.rename({'PX_LAST': 'rf_rate'}, axis=1)
         # drop row when vols are missing
         df = pd.concat([price, rate_3m, df], axis=1)#.dropna(axis=0, subset=df.columns, how='all')
@@ -352,6 +348,9 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
 
 
 def fetch_last_prices(tickers: Union[List, Dict] = FX_DICT) -> pd.Series:
+    """
+    fetch last prices of instruments in tickers
+    """
     if isinstance(tickers, Dict):
         tickers1 = list(tickers.keys())
     else:
@@ -362,12 +361,16 @@ def fetch_last_prices(tickers: Union[List, Dict] = FX_DICT) -> pd.Series:
     return df.iloc[:, 0]
 
 
-def fetch_bond_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
-                    fields: List[str] = ['id_bb', 'name',  'security_des',
+def fetch_bonds_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
+                     fields: List[str] = ('id_bb', 'name',  'security_des',
                                          'ult_parent_ticker_exchange', 'crncy', 'amt_outstanding',
                                          'px_last',
-                                         'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur']
-                    ) -> pd.DataFrame:
+                                         'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur')
+                     ) -> pd.DataFrame:
+    """
+    bonds are given by isins
+    fetch fileds data for bonds
+    """
     issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields)
     # process US03522AAH32 corp to US03522AAH32
     issue_data.insert(loc=0, column='isin', value=[x.split(' ')[0] for x in issue_data.index])
@@ -376,14 +379,19 @@ def fetch_bond_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
     return issue_data
 
 
-def fetch_cds_info(equity_tickers: List[str] = ['ABI BB Equity', 'CVS US Equity']) -> pd.DataFrame:
-    cds_rate_tickers = blp.bdp(tickers=equity_tickers, flds='cds_spread_ticker_5y')
+def fetch_cds_info(equity_tickers: List[str] = ('ABI BB Equity', 'CVS US Equity'),
+                   field: str = 'cds_spread_ticker_5y'
+                   ) -> pd.DataFrame:
+    """
+    fetch cds info
+    """
+    cds_rate_tickers = blp.bdp(tickers=equity_tickers, flds=field)
     cds_rate_tickers = cds_rate_tickers.reindex(index=equity_tickers)
     return cds_rate_tickers
 
 
-def fetch_balance_data(tickers: List[str] = ['ABI BB Equity', 'T US Equity', 'JPM US Equity'],
-                       fields: List[str] = ['GICS_SECTOR_NAME', 'BB_ISSR_COMP_BSE_ON_RTGS', 'TOT_COMMON_EQY',
+def fetch_balance_data(tickers: List[str] = ('ABI BB Equity', 'T US Equity', 'JPM US Equity'),
+                       fields: List[str] = ('GICS_SECTOR_NAME', 'BB_ISSR_COMP_BSE_ON_RTGS', 'TOT_COMMON_EQY',
                                             'BS_LT_BORROW', 'BS_ST_BORROW', 'EQY_FUND_CRNCY',
                                             'EARN_YLD',
                                             'RETURN_ON_ASSETS_ADJUSTED',
@@ -395,8 +403,11 @@ def fetch_balance_data(tickers: List[str] = ['ABI BB Equity', 'T US Equity', 'JP
                                             'INTEREST_COVERAGE_RATIO',
                                             'BS_LIQUIDITY_COVERAGE_RATIO',
                                             'NET_DEBT_TO_EBITDA',
-                                            'T12_FCF_T12_EBITDA']
+                                            'T12_FCF_T12_EBITDA')
                        ) -> pd.DataFrame:
+    """
+    fundamentals data for tickers in tickers
+    """
     issue_data = blp.bdp(tickers, fields)
     issue_data = issue_data.rename({x: x.upper() for x in issue_data.columns}, axis=1)
     issue_data = issue_data.reindex(index=tickers).reindex(columns=fields)
@@ -404,12 +415,23 @@ def fetch_balance_data(tickers: List[str] = ['ABI BB Equity', 'T US Equity', 'JP
     return issue_data
 
 
-def fetch_tickers_from_isins(isins: List[str] = ['US88160R1014', 'IL0065100930']) -> pd.DataFrame:
+def fetch_tickers_from_isins(isins: List[str] = ['US88160R1014', 'IL0065100930']) -> List[str]:
+    """
+    =BDP("US4592001014 ISIN", "PARSEKYABLE_DES") => IBM XX Equity
+    where XX depends on your terminal settings, which you can check on CNDF <Go>.
+    get the main exchange composite ticker, or whatever suits your need (in A3):
+    =BDP(A2,"EQY_PRIM_SECURITY_COMP_EXCH") => US
+    """
     tickers = {f"/ISIN/{x}": x for x in isins}
-    df = blp.bdp(list(tickers.keys()), "PARSEKYABLE_DES")
-    df.index = df.index.map(tickers)  # map back to isins
+    df = blp.bdp(list(tickers.keys()), ["parsekyable_des", "eqy_prim_security_comp_exch"])
+    df.index = df.index.map(tickers)  # map back to isins  need to sort back to isins order
     df = df.reindex(index=isins)
-    return df
+    # replace default country with exchange
+    tickers = []
+    for ticker_, exchange in zip(df["parsekyable_des"].to_list(), df["eqy_prim_security_comp_exch"].to_list()):
+        ticker_s = ticker_.split(' ')
+        tickers.append(f"{ticker_s[0]} {exchange} {ticker_s[-1]}")
+    return tickers
 
 
 def fetch_dividend_history(ticker: str = 'TIP US Equity') -> pd.DataFrame:
@@ -421,37 +443,74 @@ def fetch_dividend_history(ticker: str = 'TIP US Equity') -> pd.DataFrame:
     return this
 
 
-def fetch_div_yields(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def fetch_div_yields(tickers: Union[List[str], Dict[str, str]],
+                     dividend_types: List[str] = ('Income', 'Distribution')
+                     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    dividend_types can include:
+    dividend_types: List[str] = ('Income', 'Distribution')
+    dividend_types: List[str] = ('Income', 'Distribution', 'Return of Capital', 'Accumulation')
+    """
+    if isinstance(tickers, list):
+        tickers_ = tickers
+    elif isinstance(tickers, dict):
+        tickers_ = list(tickers.keys())
+    else:
+        raise NotImplemented(f"type={type(tickers)}")
     divs = {}
     divs_1y = {}
-    for ticker in tickers:
+    for ticker in tickers_:
         div = fetch_dividend_history(ticker=ticker)
         if not div.empty:
-            valid_div_cond = div['dividend_type'].apply(lambda x: x in ['Income', 'Distribution'])
+            valid_div_cond = div['dividend_type'].apply(lambda x: x in dividend_types)
             valid_div = div.loc[valid_div_cond, :].set_index('ex_date')  # set ex_date index
-            if not div.empty and len(valid_div.index) > 0:
+            if np.any(valid_div.index.duplicated()): # aggregate dividend by sum of non-unique distributions
+                def sum_unique(s):
+                    return s.unique().sum()
+                valid_div = valid_div.groupby('declared_date', sort=False, as_index=True).agg(
+                    declared_date=('declared_date', 'first'),
+                    record_date=('record_date', 'first'),
+                    payable_date=('payable_date', 'first'),
+                    dividend_amount=('dividend_amount', sum_unique),
+                    dividend_frequency=('dividend_frequency', 'first'),
+                    dividend_type=('dividend_type', 'first')
+                )
+
+            if not valid_div.empty and len(valid_div.index) > 0:
                 valid_div.index = pd.to_datetime(valid_div.index)
                 valid_div = valid_div.sort_index()
-                div_freq = valid_div['dividend_frequency'].iloc[-1]
-                if div_freq == 'Monthly': # extrapolate to 1y
-                    roll_period = 12
-                    an_factor = 1.0
-                elif div_freq == 'Quarter': # extrapolate to 1y
-                    roll_period = 4
-                    an_factor = 1.0
-                elif div_freq == 'Semi-Anl': # extrapolate to 1y
-                    roll_period = 2
-                    an_factor = 1.0
-                elif div_freq == 'Annual': # extrapolate to 1y
-                    roll_period = 1
-                    an_factor = 1.0
-                else:
-                    raise NotImplementedError(f"div_freq = {div_freq}")
-                divs[ticker] = valid_div['dividend_amount']
-                divs_1y[ticker] = an_factor * valid_div['dividend_amount'].rolling(roll_period).sum()
+                valid_div_amount = valid_div['dividend_amount']
+                divs[ticker] = valid_div_amount
+                divs_1y[ticker] = valid_div_amount.rolling("365D").sum()  # assume 365 B days in year
     divs = pd.DataFrame.from_dict(divs, orient='columns').reindex(columns=tickers)
     divs_1y = pd.DataFrame.from_dict(divs_1y, orient='columns').reindex(columns=tickers)
+    if isinstance(tickers, dict):
+        divs = divs.rename(tickers, axis=1)
+        divs_1y = divs_1y.rename(tickers, axis=1)
+
     return divs, divs_1y
+
+
+####################  Helper functions ####################
+
+def instrument_to_active_ticker(instrument: str = 'ES1 Index', num: int = 1) -> str:
+    """
+    ES1 Index to ES{num} Index
+    Z1 Index to Z 1 Index
+    """
+    head = contract_to_instrument(instrument)
+    ticker_split = instrument.split(' ')
+    mid = "" if len(ticker_split[0]) > 1 else " "
+    active_ticker = f"{head}{mid}{num} {ticker_split[-1]}"
+    return active_ticker
+
+
+def contract_to_instrument(future: str) -> str:
+    """
+    ES1 Index to ES Index
+    """
+    ticker_split_wo_num = re.sub('\d+', '', future).split()
+    return ticker_split_wo_num[0]
 
 
 """
@@ -469,54 +528,43 @@ def fetch_option_underlying_tickers_from_isins(isins: List[str] = ['DE000C77PRU9
 
 
 class UnitTests(Enum):
-    FUNDAMENTALS = 1
-    FIELDS_PER_TICKER = 2
-    FIELD_PER_TICKERS = 3
+    FIELD_TIMESERIES_PER_TICKERS = 1
+    FIELDS_TIMESERIES_PER_TICKER = 2
+    FUNDAMENTALS = 3
     ACTIVE_FUTURES = 4
     CONTRACT_TABLE = 5
     IMPLIED_VOL_TIME_SERIES = 6
-    LAST_PRICES = 7
-    CDS = 8
-    BOND_INFO = 9
-    CDS_INFO = 10
-    BALANCE_DATA = 11
-    TICKERS_FROM_ISIN = 12
+    BOND_INFO = 7
+    LAST_PRICES = 8
+    CDS_INFO = 9
+    BALANCE_DATA = 10
+    TICKERS_FROM_ISIN = 11
     # OPTION_UNDERLYING_FROM_ISIN = 14
-    DIVIDEND = 14
+    DIVIDEND = 12
 
 
 def run_unit_test(unit_test: UnitTests):
 
     pd.set_option('display.max_columns', 500)
 
-    if unit_test == UnitTests.FUNDAMENTALS:
+    if unit_test == UnitTests.FIELD_TIMESERIES_PER_TICKERS:
+        df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
+                                                CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
+        # df = fetch_field_timeseries_per_tickers(tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
+
+        print(df)
+
+    elif unit_test == UnitTests.FIELDS_TIMESERIES_PER_TICKER:
+        df = fetch_fields_timeseries_per_ticker(ticker='ES1 Index', fields=['PX_LAST', 'FUT_DAYS_EXP'])
+        print(df)
+
+    elif unit_test == UnitTests.FUNDAMENTALS:
         df = fetch_fundamentals(tickers=['AAPL US Equity', 'BAC US Equity'],
                                 fields=['Security_Name', 'GICS_Sector_Name', 'CRNCY'])
         print(df)
 
-    elif unit_test == UnitTests.FIELDS_PER_TICKER:
-        # df = fetch_fields_timeseries_per_ticker(ticker='USDJPYV1M BGN Curncy', fields=['PX_LAST'])
-        # df = fetch_fields_timeseries_per_ticker(ticker='SPY US Equity', fields=['30DAY_IMPVOL_100.0%MNY_DF', 'PX_LAST'])
-        # df = fetch_fields_timeseries_per_ticker(ticker='USDJPY Curncy', fields=['30DAY_IMPVOL_100.0%MNY_DF', 'PX_LAST'])
-        df = fetch_fields_timeseries_per_ticker(ticker='ES1 Index', fields=['PX_LAST', 'FUT_DAYS_EXP'])
-        print(df)
-
-    elif unit_test == UnitTests.FIELD_PER_TICKERS:
-        # df = fetch_field_timeseries_per_tickers(tickers=['AAPL US Equity', 'OCBC SP Equity', '6920 JP Equity'], field='30DAY_IMPVOL_100.0%MNY_DF')
-        # df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
-        #                                         CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
-        #df = fetch_field_timeseries_per_tickers(tickers=['CSBC1U5 PRXY Curncy'], field='PX_LAST')
-        #print(df)
-        # PRXY CBGN
-        # df = fetch_field_timeseries_per_tickers(tickers=['CGIS1U5 CBGN Curncy'], field='PX_LAST')
-        df = fetch_field_timeseries_per_tickers(tickers=['CSBC1U5 CBGN Curncy'], field='PX_LAST')
-        print(df)
-
     elif unit_test == UnitTests.ACTIVE_FUTURES:
-        # field_data = blp.active_futures('ESA Index', dt='1997-09-10')
-        # print(field_data)
-
-        field_data = fetch_active_futures(generic_ticker='ESA Equity')
+        field_data = fetch_active_futures(generic_ticker='ES1 Index')
         print(field_data)
 
     elif unit_test == UnitTests.CONTRACT_TABLE:
@@ -533,13 +581,8 @@ def run_unit_test(unit_test: UnitTests):
         fx_prices = fetch_last_prices()
         print(fx_prices)
 
-    elif unit_test == UnitTests.CDS:
-        df = fetch_field_timeseries_per_tickers(
-            tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
-        print(df)
-
     elif unit_test == UnitTests.BOND_INFO:
-        data = fetch_bond_info()
+        data = fetch_bonds_info()
         print(data)
 
     elif unit_test == UnitTests.CDS_INFO:
