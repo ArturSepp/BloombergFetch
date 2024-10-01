@@ -16,9 +16,9 @@ git clone https://github.com/ArturSepp/BloombergFetch.git
 ```
 
 
-For requirements:
+Install blpapi package with:
 ```python 
-pip install --index-url=https://bcms.bloomberg.com/pip/simple blpapi
+pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
 ```
 
 Configuration of rolls for futures contracts on Bloomberg: GFUT

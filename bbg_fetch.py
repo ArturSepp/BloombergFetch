@@ -114,8 +114,8 @@ def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]]
                                        CshAdjNormal: bool = True,
                                        CshAdjAbnormal: bool = True,
                                        CapChg: bool = True,
-                                       start_date: pd.Timestamp = DEFAULT_START_DATE,
-                                       end_date: pd.Timestamp = pd.Timestamp.now(),
+                                       start_date: Optional[pd.Timestamp] = DEFAULT_START_DATE,
+                                       end_date: Optional[pd.Timestamp] = pd.Timestamp.now(),
                                        freq: str = None
                                        ) -> Optional[pd.DataFrame]:
     """
@@ -139,7 +139,6 @@ def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]]
 
     # make sure all columns are returned
     field_data.index = pd.to_datetime(field_data.index)
-    field_data = field_data.sort_index()
     if freq is not None:
         field_data = field_data.asfreq(freq, method='ffill')
 
@@ -147,6 +146,8 @@ def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]]
     field_data = field_data.reindex(columns=tickers_)
     if isinstance(tickers, dict):
         field_data = field_data.rename(tickers, axis=1)
+
+    field_data = field_data.sort_index()
 
     return field_data
 
@@ -311,15 +312,9 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
     fetch imlied vols specified in  vol_fields
     """
     if isinstance(vol_fields, list):
-        dfs = []
-        for fields_ in vol_fields:
-            df = fetch_fields_timeseries_per_ticker(ticker=ticker,
-                                                    fields=list(fields_.keys()),
-                                                    start_date=start_date)
-            if rename:
-                df = df.rename(fields_, axis=1)
-            dfs.append(df)
-        df = pd.concat(dfs, axis=1)
+        df = fetch_fields_timeseries_per_ticker(ticker=ticker,
+                                                fields=vol_fields,
+                                                start_date=start_date)
     else:
         df = fetch_fields_timeseries_per_ticker(ticker=ticker,
                                                 fields=list(vol_fields.keys()),
@@ -548,10 +543,11 @@ def run_unit_test(unit_test: UnitTests):
     pd.set_option('display.max_columns', 500)
 
     if unit_test == UnitTests.FIELD_TIMESERIES_PER_TICKERS:
-        df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
-                                                CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
+        #df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
+        #                                        CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
         # df = fetch_field_timeseries_per_tickers(tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
 
+        df = fetch_field_timeseries_per_tickers(tickers=['EUR003M Index'], field='PX_LAST')
         print(df)
 
     elif unit_test == UnitTests.FIELDS_TIMESERIES_PER_TICKER:
@@ -572,9 +568,11 @@ def run_unit_test(unit_test: UnitTests):
         print(df)
 
     elif unit_test == UnitTests.IMPLIED_VOL_TIME_SERIES:
-        df = fetch_vol_timeseries(ticker='SPX Index', vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
-                                                                  IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
-                                                                  IMPVOL_FIELDS_MNY_12M])
+        # df = fetch_vol_timeseries(ticker='SPX Index', vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
+        #                                                          IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
+        #                                                          IMPVOL_FIELDS_MNY_12M])
+        df = fetch_vol_timeseries(ticker='EURUSD Curncy', vol_fields=['1M_CALL_IMP_VOL_10DELTA_DFLT',
+                                                                      '1M_PUT_IMP_VOL_10DELTA_DFLT'])
         print(df)
 
     elif unit_test == UnitTests.LAST_PRICES:
@@ -611,7 +609,7 @@ def run_unit_test(unit_test: UnitTests):
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.DIVIDEND
+    unit_test = UnitTests.FIELD_TIMESERIES_PER_TICKERS
 
     is_run_all_tests = False
     if is_run_all_tests:

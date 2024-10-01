@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bbg_fetch"
-version = "1.0.25"
+version = "1.0.26"
 description = "Bloomberg fetching analytics wrapping xbbg package"
 license = "LICENSE.txt"
 authors = ["Artur Sepp <artursepp@gmail.com>"]
@@ -30,7 +30,8 @@ classifiers=[
 "Personal website" = "https://artursepp.com"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8"
+
 pandas = ">=1.5.2"
 xbbg = ">=0.0.7"
 
