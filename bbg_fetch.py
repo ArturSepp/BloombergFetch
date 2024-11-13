@@ -1,5 +1,5 @@
 """
-pip install --index-url=https://bcms.bloomberg.com/pip/simple blpapi
+to install blpapi use
 pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
 GFUT
 """
@@ -109,7 +109,7 @@ IMPVOL_FIELDS_DELTA = {'1M_CALL_IMP_VOL_10DELTA_DFLT': '1MC10D.0',
                        }
 
 
-def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]],
+def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Tuple[str], Dict[str, str]],
                                        field: str = 'PX_LAST',
                                        CshAdjNormal: bool = True,
                                        CshAdjAbnormal: bool = True,
@@ -122,7 +122,7 @@ def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Dict[str, str]]
     get bloomberg field data adjusted for splits and divs for a list of tickers
     tickers can be a dict {'ES1 Index': 'SPY', 'UXY1 Comdty': '10yUST'}, then df columns are renamed
     """
-    if isinstance(tickers, list):
+    if isinstance(tickers, list) or isinstance(tickers, Tuple):
         tickers_ = tickers
     elif isinstance(tickers, dict):
         tickers_ = list(tickers.keys())
@@ -188,12 +188,20 @@ def fetch_fields_timeseries_per_ticker(ticker: str,
     return field_data
 
 
-def fetch_fundamentals(tickers: List[str],
+def fetch_fundamentals(tickers: Union[List[str], Dict[str, str]],
                        fields: List[str] = ('security_name', 'gics_sector_name',)
                        ) -> pd.DataFrame:
-    df = blp.bdp(tickers=tickers, flds=fields)
-    # align with given order of tickers and fields
-    df = df.reindex(index=tickers).reindex(columns=fields)
+    if isinstance(tickers, list):
+        tickers_ = tickers
+    elif isinstance(tickers, dict):
+        tickers_ = list(tickers.keys())
+    else:
+        raise NotImplemented(f"type={type(tickers)}")
+    df = blp.bdp(tickers=tickers_, flds=fields)
+    # align with given order of tickers
+    df = df.reindex(index=tickers_).reindex(columns=fields)
+    if isinstance(tickers, dict):
+        df = df.rename(tickers, axis=0)
     return df
 
 
@@ -536,6 +544,7 @@ class UnitTests(Enum):
     TICKERS_FROM_ISIN = 11
     # OPTION_UNDERLYING_FROM_ISIN = 14
     DIVIDEND = 12
+    MEMBERS = 14
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -546,17 +555,25 @@ def run_unit_test(unit_test: UnitTests):
         #df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
         #                                        CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
         # df = fetch_field_timeseries_per_tickers(tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
+        # df = fetch_field_timeseries_per_tickers(tickers=['EUR003M Index'], field='PX_LAST')
+        # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty'], field='FUT_EQV_DUR_NOTL')
+        df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty', 'UXY1 Comdty'],
+                                                start_date=pd.Timestamp('01Jan2015'),
+                                                field='FUT_EQV_DUR_NOTL')
 
-        df = fetch_field_timeseries_per_tickers(tickers=['EUR003M Index'], field='PX_LAST')
         print(df)
+        print(df.max(axis=0))
 
     elif unit_test == UnitTests.FIELDS_TIMESERIES_PER_TICKER:
         df = fetch_fields_timeseries_per_ticker(ticker='ES1 Index', fields=['PX_LAST', 'FUT_DAYS_EXP'])
         print(df)
 
     elif unit_test == UnitTests.FUNDAMENTALS:
-        df = fetch_fundamentals(tickers=['AAPL US Equity', 'BAC US Equity'],
-                                fields=['Security_Name', 'GICS_Sector_Name', 'CRNCY'])
+        # df = fetch_fundamentals(tickers=['AAPL US Equity', 'BAC US Equity'],
+        #                        fields=['Security_Name', 'GICS_Sector_Name', 'CRNCY'])
+        df = fetch_fundamentals(tickers=['HAHYIM2 HK Equity'],
+                                fields=['name', 'front_load', 'back_load', 'fund_mgr_stated_fee',
+                                        'fund_min_invest'])
         print(df)
 
     elif unit_test == UnitTests.ACTIVE_FUTURES:
@@ -600,6 +617,13 @@ def run_unit_test(unit_test: UnitTests):
         print(this)
         divs, divs_1y = fetch_div_yields(tickers=['AHYG SP Equity'])
         print(divs_1y)
+
+    elif unit_test == UnitTests.MEMBERS:
+        IndexConst = blp.bds('I04064US Index', 'INDX_MEMBERS4')
+        print(IndexConst)
+        #members = blp.bds('SPCPGN Index', "INDX_MWEIGHT_PX", END_DATE_OVERRIDE="20210101")
+        #print(members)
+
     """
     elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
         df = fetch_option_underlying_tickers_from_isins()

@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "bbg_fetch"
-version = "1.0.26"
+version = "1.0.28"
 description = "Bloomberg fetching analytics wrapping xbbg package"
 license = "LICENSE.txt"
 authors = ["Artur Sepp <artursepp@gmail.com>"]
 maintainers = ["Artur Sepp <artursepp@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/ArturSepp/BloombergFetch"
-documentation = "https://github.com/ArturSepp/BloombergFet:ch"
+documentation = "https://github.com/ArturSepp/BloombergFetch"
 keywords= ["quantitative", "investing", "portfolio optimization", "systematic strategies", "volatility"]
 classifiers=[
         "Development Status :: 4 - Beta",
@@ -17,6 +17,7 @@ classifiers=[
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.8",
@@ -31,7 +32,6 @@ classifiers=[
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-
 pandas = ">=1.5.2"
 xbbg = ">=0.0.7"
 
