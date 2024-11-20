@@ -189,19 +189,27 @@ def fetch_fields_timeseries_per_ticker(ticker: str,
 
 
 def fetch_fundamentals(tickers: Union[List[str], Dict[str, str]],
-                       fields: List[str] = ('security_name', 'gics_sector_name',)
+                       fields: Union[List[str], Dict[str, str]] = ('security_name', 'gics_sector_name',)
                        ) -> pd.DataFrame:
     if isinstance(tickers, list):
         tickers_ = tickers
     elif isinstance(tickers, dict):
         tickers_ = list(tickers.keys())
     else:
-        raise NotImplemented(f"type={type(tickers)}")
-    df = blp.bdp(tickers=tickers_, flds=fields)
+        raise NotImplemented(f"tickers type={type(tickers)}")
+    if isinstance(fields, list):
+        fields_ = fields
+    elif isinstance(fields, dict):
+        fields_ = list(fields.keys())
+    else:
+        raise NotImplemented(f"fields type={type(fields)}")
+    df = blp.bdp(tickers=tickers_, flds=fields_)
     # align with given order of tickers
     df = df.reindex(index=tickers_).reindex(columns=fields)
     if isinstance(tickers, dict):
         df = df.rename(tickers, axis=0)
+    if isinstance(fields, dict):
+        df = df.rename(fields, axis=1)
     return df
 
 

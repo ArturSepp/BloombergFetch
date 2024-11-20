@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bbg_fetch"
-version = "1.0.28"
+version = "1.0.29"
 description = "Bloomberg fetching analytics wrapping xbbg package"
 license = "LICENSE.txt"
 authors = ["Artur Sepp <artursepp@gmail.com>"]
