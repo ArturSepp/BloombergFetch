@@ -502,7 +502,13 @@ def fetch_div_yields(tickers: Union[List[str], Dict[str, str]],
     return divs, divs_1y
 
 
+def fetch_index_members_weights(index: str = 'SPCPGN Index') -> pd.DataFrame:
+    members = blp.bds(index, 'INDX_MWEIGHT')
+    return members
+
+
 ####################  Helper functions ####################
+
 
 def instrument_to_active_ticker(instrument: str = 'ES1 Index', num: int = 1) -> str:
     """
@@ -605,7 +611,15 @@ def run_unit_test(unit_test: UnitTests):
         print(fx_prices)
 
     elif unit_test == UnitTests.BOND_INFO:
-        data = fetch_bonds_info()
+        # data = fetch_bonds_info()
+        # print(data)
+
+        data = fetch_bonds_info(isins=['US404280BL25'],
+                                            fields=['id_bb', 'name', 'security_des',
+                                                                 'ult_parent_ticker_exchange', 'crncy',
+                                                                 'amt_outstanding',
+                                                                 'px_last',
+                                                                 'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur'])
         print(data)
 
     elif unit_test == UnitTests.CDS_INFO:
@@ -627,10 +641,20 @@ def run_unit_test(unit_test: UnitTests):
         print(divs_1y)
 
     elif unit_test == UnitTests.MEMBERS:
-        IndexConst = blp.bds('I04064US Index', 'INDX_MEMBERS4')
-        print(IndexConst)
-        #members = blp.bds('SPCPGN Index', "INDX_MWEIGHT_PX", END_DATE_OVERRIDE="20210101")
-        #print(members)
+        # members = fetch_index_members_weights(index='SPCPGN Index')
+        # members = blp.bds('I31415US Index', 'INDX_MWEIGHT')
+        members = fetch_index_members_weights(index='I00182US Index')
+        print(members)
+    """
+    df = fetch_bonds_info(isins=members['member_ticker_and_exchange_code'].to_list(),
+                          fields=['id_bb', 'name', 'security_des',
+                                  'px_last', 'amt_outstanding',
+                                  'yas_bond_yld', 'yld_ytc_mid', 'cpn',
+                                  'yas_yld_spread', 'flt_spread'])
+
+    print(df)
+    df.to_clipboard()
+    """
 
     """
     elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
@@ -641,7 +665,7 @@ def run_unit_test(unit_test: UnitTests):
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.FIELD_TIMESERIES_PER_TICKERS
+    unit_test = UnitTests.MEMBERS
 
     is_run_all_tests = False
     if is_run_all_tests:
