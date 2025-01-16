@@ -16,7 +16,7 @@ requirements = read_requirements("requirements.txt")
 
 setup(
     name='bbg_fetch',
-    version='1.0.30',
+    version='1.0.31',
     author='Artur Sepp',
     author_email='artursepp@gmail.com',
     url='https://github.com/ArturSepp/BloombergFetch',

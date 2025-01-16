@@ -1,6 +1,7 @@
 """
 to install blpapi use
 pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
+https://github.com/alpha-xone/xbbg/tree/main
 GFUT
 """
 
@@ -374,15 +375,16 @@ def fetch_last_prices(tickers: Union[List, Dict] = FX_DICT) -> pd.Series:
 
 def fetch_bonds_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
                      fields: List[str] = ('id_bb', 'name',  'security_des',
-                                         'ult_parent_ticker_exchange', 'crncy', 'amt_outstanding',
-                                         'px_last',
-                                         'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur')
+                                          'ult_parent_ticker_exchange', 'crncy', 'amt_outstanding',
+                                          'px_last',
+                                          'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur'),
+                     END_DATE_OVERRIDE: Optional[str] = None
                      ) -> pd.DataFrame:
     """
     bonds are given by isins
     fetch fileds data for bonds
     """
-    issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields)
+    issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields, END_DATE_OVERRIDE=END_DATE_OVERRIDE)
     # process US03522AAH32 corp to US03522AAH32
     issue_data.insert(loc=0, column='isin', value=[x.split(' ')[0] for x in issue_data.index])
     issue_data = issue_data.reset_index(names='isin_corp').set_index('isin')
@@ -502,8 +504,14 @@ def fetch_div_yields(tickers: Union[List[str], Dict[str, str]],
     return divs, divs_1y
 
 
-def fetch_index_members_weights(index: str = 'SPCPGN Index') -> pd.DataFrame:
-    members = blp.bds(index, 'INDX_MWEIGHT')
+def fetch_index_members_weights(index: str = 'SPCPGN Index',
+                                END_DATE_OVERRIDE: Optional[str] = None
+                                ) -> pd.DataFrame:
+    members = blp.bds(index, 'INDX_MWEIGHT', END_DATE_OVERRIDE=END_DATE_OVERRIDE)
+    if members is not None:
+        members = members.set_index('member_ticker_and_exchange_code', drop=True)
+    else:
+        raise ValueError(f"no data for {index}")
     return members
 
 
@@ -541,6 +549,10 @@ def fetch_option_underlying_tickers_from_isins(isins: List[str] = ['DE000C77PRU9
     df.index = df.index.map(tickers)  # map back to isins
     df = df.reindex(index=isins)
     return df
+
+    elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
+        df = fetch_option_underlying_tickers_from_isins()
+        print(df)
 """
 
 
@@ -559,6 +571,8 @@ class UnitTests(Enum):
     # OPTION_UNDERLYING_FROM_ISIN = 14
     DIVIDEND = 12
     MEMBERS = 14
+    OPTION_CHAIN = 15
+    YIELD_CURVE = 16
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -571,12 +585,9 @@ def run_unit_test(unit_test: UnitTests):
         # df = fetch_field_timeseries_per_tickers(tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
         # df = fetch_field_timeseries_per_tickers(tickers=['EUR003M Index'], field='PX_LAST')
         # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty'], field='FUT_EQV_DUR_NOTL')
-        df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty', 'UXY1 Comdty'],
-                                                start_date=pd.Timestamp('01Jan2015'),
-                                                field='FUT_EQV_DUR_NOTL')
-
+        # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty', 'UXY1 Comdty'], start_date=pd.Timestamp('01Jan2015'), field='FUT_EQV_DUR_NOTL')
+        df = fetch_field_timeseries_per_tickers(tickers=['ZS877681 corp'], field='PX_LAST')
         print(df)
-        print(df.max(axis=0))
 
     elif unit_test == UnitTests.FIELDS_TIMESERIES_PER_TICKER:
         df = fetch_fields_timeseries_per_ticker(ticker='ES1 Index', fields=['PX_LAST', 'FUT_DAYS_EXP'])
@@ -642,30 +653,46 @@ def run_unit_test(unit_test: UnitTests):
 
     elif unit_test == UnitTests.MEMBERS:
         # members = fetch_index_members_weights(index='SPCPGN Index')
-        # members = blp.bds('I31415US Index', 'INDX_MWEIGHT')
-        members = fetch_index_members_weights(index='I00182US Index')
+        members = fetch_index_members_weights('I31415US Index', END_DATE_OVERRIDE='20200101')
+        # members = fetch_index_members_weights(index='I00182US Index')
         print(members)
-    """
-    df = fetch_bonds_info(isins=members['member_ticker_and_exchange_code'].to_list(),
-                          fields=['id_bb', 'name', 'security_des',
-                                  'px_last', 'amt_outstanding',
-                                  'yas_bond_yld', 'yld_ytc_mid', 'cpn',
-                                  'yas_yld_spread', 'flt_spread'])
+        """
+        df = fetch_bonds_info(isins=members['member_ticker_and_exchange_code'].to_list(),
+                              fields=['id_bb', 'name', 'security_des',
+                                      'px_last', 'amt_outstanding',
+                                      'yas_bond_yld', 'yld_ytc_mid', 'cpn',
+                                      'yas_yld_spread', 'flt_spread'])
 
-    print(df)
-    df.to_clipboard()
-    """
-
-    """
-    elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
-        df = fetch_option_underlying_tickers_from_isins()
         print(df)
-    """
+        df.to_clipboard()
+        """
+
+    elif unit_test == UnitTests.OPTION_CHAIN:
+        df = blp.bds('TSLA US Equity',
+                     'CHAIN_TICKERS',
+                     # CHAIN_EXP_DT_OVRD='20210917',
+                     CHAIN_PUT_CALL_TYPE_OVRD='PUT',  # 'Call'
+                     CHAIN_POINTS_OVRD=1000
+                     )
+
+        print(df)
+
+    elif unit_test == UnitTests.YIELD_CURVE:
+        from datetime import date
+        YC_US = blp.bds("YCGT0025 Index", "INDX_MEMBERS")
+        print(YC_US)
+        YC_US_VAL = blp.bdp(YC_US.member_ticker_and_exchange_code.tolist(),
+                            ['YLD_YTM_ASK', 'SECURITY NAME', 'MATURITY'])
+        YC_US_VAL.maturity = pd.to_datetime(YC_US_VAL.maturity)
+        YC_US_VAL["Yr"] = (YC_US_VAL.maturity - pd.to_datetime(date.today())) / np.timedelta64(365, 'D')
+        YC_US_VAL = YC_US_VAL.sort_values(by=["Yr"])
+
+        print(YC_US_VAL)
 
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.MEMBERS
+    unit_test = UnitTests.FIELD_TIMESERIES_PER_TICKERS
 
     is_run_all_tests = False
     if is_run_all_tests:
