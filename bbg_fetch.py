@@ -384,7 +384,11 @@ def fetch_bonds_info(isins: List[str] = ['US03522AAJ97', 'US126650CZ11'],
     bonds are given by isins
     fetch fileds data for bonds
     """
-    issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields, END_DATE_OVERRIDE=END_DATE_OVERRIDE)
+    if END_DATE_OVERRIDE is None:
+        issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields)
+    else:
+        issue_data = blp.bdp([f"{isin} corp" for isin in isins], fields, END_DATE_OVERRIDE=END_DATE_OVERRIDE)
+
     # process US03522AAH32 corp to US03522AAH32
     issue_data.insert(loc=0, column='isin', value=[x.split(' ')[0] for x in issue_data.index])
     issue_data = issue_data.reset_index(names='isin_corp').set_index('isin')
@@ -507,7 +511,10 @@ def fetch_div_yields(tickers: Union[List[str], Dict[str, str]],
 def fetch_index_members_weights(index: str = 'SPCPGN Index',
                                 END_DATE_OVERRIDE: Optional[str] = None
                                 ) -> pd.DataFrame:
-    members = blp.bds(index, 'INDX_MWEIGHT', END_DATE_OVERRIDE=END_DATE_OVERRIDE)
+    if END_DATE_OVERRIDE is None:
+        members = blp.bds(index, 'INDX_MWEIGHT')
+    else:
+        members = blp.bds(index, 'INDX_MWEIGHT', END_DATE_OVERRIDE=END_DATE_OVERRIDE)
     if members is not None:
         members = members.set_index('member_ticker_and_exchange_code', drop=True)
     else:
@@ -573,6 +580,7 @@ class UnitTests(Enum):
     MEMBERS = 14
     OPTION_CHAIN = 15
     YIELD_CURVE = 16
+    CHECK = 17
 
 
 def run_unit_test(unit_test: UnitTests):
@@ -625,7 +633,7 @@ def run_unit_test(unit_test: UnitTests):
         # data = fetch_bonds_info()
         # print(data)
 
-        data = fetch_bonds_info(isins=['US404280BL25'],
+        data = fetch_bonds_info(isins=['EI198784'],
                                             fields=['id_bb', 'name', 'security_des',
                                                                  'ult_parent_ticker_exchange', 'crncy',
                                                                  'amt_outstanding',
@@ -653,19 +661,36 @@ def run_unit_test(unit_test: UnitTests):
 
     elif unit_test == UnitTests.MEMBERS:
         # members = fetch_index_members_weights(index='SPCPGN Index')
-        members = fetch_index_members_weights('I31415US Index', END_DATE_OVERRIDE='20200101')
+        # members = fetch_index_members_weights('I31415US Index', END_DATE_OVERRIDE='20200101')
         # members = fetch_index_members_weights(index='I00182US Index')
+        # members = fetch_index_members_weights('LUACTRUU Index')
+        # members = fetch_index_members_weights('BEUCTRUU Index')
+        members = fetch_index_members_weights('I30902US Index')
+
         print(members)
-        """
-        df = fetch_bonds_info(isins=members['member_ticker_and_exchange_code'].to_list(),
-                              fields=['id_bb', 'name', 'security_des',
-                                      'px_last', 'amt_outstanding',
-                                      'yas_bond_yld', 'yld_ytc_mid', 'cpn',
-                                      'yas_yld_spread', 'flt_spread'])
+
+
+        fields = ['id_bb', 'name', 'security_des',
+                  'ult_parent_ticker_exchange', 'crncy', 'amt_outstanding',
+                  'px_last',
+                  'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur', 'bb_composite',
+                  'lqa_liquidity_score', 'lqa_expected_daily_volume', 'lqa_bid_ask_spread']
+
+        fields = ['id_bb', 'name', 'security_des',
+                  'px_last', 'amt_outstanding',
+                  'yas_bond_yld', 'yld_ytc_mid', 'cpn',
+                  'yas_yld_spread', 'flt_spread']
+
+        fields = ['id_bb', 'name', 'security_des',
+                  'ult_parent_ticker_exchange', 'crncy',
+                  'px_last',
+                  'yas_bond_yld', 'yas_mod_dur', 'bb_composite']
+
+        df = fetch_bonds_info(isins=members.index.to_list(),
+                              fields=fields)
 
         print(df)
         df.to_clipboard()
-        """
 
     elif unit_test == UnitTests.OPTION_CHAIN:
         df = blp.bds('TSLA US Equity',
@@ -689,10 +714,18 @@ def run_unit_test(unit_test: UnitTests):
 
         print(YC_US_VAL)
 
+    elif unit_test == UnitTests.CHECK:
+        #this = blp.bds("LUACTRUU Index", "INDX_MEMBERS3")
+        #members = blp.bds("IBOXIG Index", 'INDX_MWEIGHT')
+        #print(this)
+        #print(members)
+        this = blp.bds("AAPL US Equity", "BCHAIN")
+        print(this)
+
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.FIELD_TIMESERIES_PER_TICKERS
+    unit_test = UnitTests.CHECK
 
     is_run_all_tests = False
     if is_run_all_tests:
