@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read_requirements(file):
@@ -16,7 +16,7 @@ requirements = read_requirements("requirements.txt")
 
 setup(
     name='bbg_fetch',
-    version='1.0.32',
+    version='1.0.35',
     author='Artur Sepp',
     author_email='artursepp@gmail.com',
     url='https://github.com/ArturSepp/BloombergFetch',
