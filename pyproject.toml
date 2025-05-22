@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bbg_fetch"
-version = "1.0.35"
+version = "1.0.39"
 description = "Bloomberg fetching analytics wrapping xbbg package"
 license = "LICENSE.txt"
 authors = ["Artur Sepp <artursepp@gmail.com>"]
@@ -26,7 +26,7 @@ classifiers=[
     ]
 
 packages = [ { include = "bbg_fetch" }]
-exclude = ["bbg_fetch/bbg_data"]
+# exclude = ["bbg_fetch/bbg_data"]
 
 [tool.poetry.urls]
 "Issues" = "https://github.com/ArturSepp/BloombergFetch/issues"

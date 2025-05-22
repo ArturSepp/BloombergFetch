@@ -14,4 +14,5 @@ from bbg_fetch.bbg_fetch import (fetch_field_timeseries_per_tickers,
                                  fetch_div_yields,
                                  fetch_index_members_weights,
                                  instrument_to_active_ticker,
-                                 contract_to_instrument)
+                                 contract_to_instrument,
+                                 fetch_issuer_isins_from_bond_isins)

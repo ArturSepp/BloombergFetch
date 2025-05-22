@@ -515,7 +515,8 @@ def fetch_index_members_weights(index: str = 'SPCPGN Index',
         members = blp.bds(index, 'INDX_MWEIGHT')
     else:
         members = blp.bds(index, 'INDX_MWEIGHT', END_DATE_OVERRIDE=END_DATE_OVERRIDE)
-    if members is not None:
+    if members is not None and not members.empty:
+        print(members)
         members = members.set_index('member_ticker_and_exchange_code', drop=True)
     else:
         raise ValueError(f"no data for {index}")
@@ -543,6 +544,30 @@ def contract_to_instrument(future: str) -> str:
     """
     ticker_split_wo_num = re.sub('\d+', '', future).split()
     return ticker_split_wo_num[0]
+
+
+def fetch_issuer_isins_from_bond_isins(bond_isins: List[str] = ['XS3034073836', 'USY0616GAA14', 'XS3023923314', 'XXXX']
+                                       ) -> pd.Series:
+    """
+    for given bond isins find their issuer isins
+    for bond_isins = ['XS3034073836', 'USY0616GAA14', 'XS3023923314', 'XXXX'], output is
+    pd.Series(['XS3034073836', 'USY0616GAA14', 'XS3023923314', np.nan], index=['XS3034073836', 'USY0616GAA14', 'XS3023923314', 'XXXX'])
+    """
+    # add corp to bond isin
+    bonds_isins_map = {f"{x} corp": x for x in bond_isins}
+    bonds_issuer_tickers = blp.bdp(bonds_isins_map.keys(), ["ult_parent_ticker_exchange"])
+    # rename index to bond isin
+    bonds_issuer_tickers = bonds_issuer_tickers.rename(bonds_isins_map, axis=0)
+    # add equity to ticker
+    equity_tickers_map = {f"{x} Equity": x for x in bonds_issuer_tickers['ult_parent_ticker_exchange'].to_list()}
+    issuer_isins = blp.bdp(equity_tickers_map.keys(), ["id_isin"])
+    # drop equity from ticker
+    issuer_isins = issuer_isins.rename(equity_tickers_map, axis=0).iloc[:, 0].to_dict()
+    # map equity isin to equity ticker
+    bonds_issuer_tickers = bonds_issuer_tickers["ult_parent_ticker_exchange"].map(issuer_isins)
+    # align with input index
+    bonds_issuer_tickers = bonds_issuer_tickers.reindex(index=bond_isins).rename('issuer isin')
+    return bonds_issuer_tickers
 
 
 """
@@ -577,15 +602,18 @@ class UnitTests(Enum):
     TICKERS_FROM_ISIN = 11
     # OPTION_UNDERLYING_FROM_ISIN = 14
     DIVIDEND = 12
-    MEMBERS = 14
-    OPTION_CHAIN = 15
-    YIELD_CURVE = 16
-    CHECK = 17
+    BOND_MEMBERS = 14
+    INDEX_MEMBERS = 15
+    OPTION_CHAIN = 16
+    YIELD_CURVE = 17
+    CHECK = 18
 
 
 def run_unit_test(unit_test: UnitTests):
 
+    pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width', 1000)
 
     if unit_test == UnitTests.FIELD_TIMESERIES_PER_TICKERS:
         #df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
@@ -659,7 +687,7 @@ def run_unit_test(unit_test: UnitTests):
         divs, divs_1y = fetch_div_yields(tickers=['AHYG SP Equity'])
         print(divs_1y)
 
-    elif unit_test == UnitTests.MEMBERS:
+    elif unit_test == UnitTests.BOND_MEMBERS:
         # members = fetch_index_members_weights(index='SPCPGN Index')
         # members = fetch_index_members_weights('I31415US Index', END_DATE_OVERRIDE='20200101')
         # members = fetch_index_members_weights(index='I00182US Index')
@@ -692,6 +720,11 @@ def run_unit_test(unit_test: UnitTests):
         print(df)
         df.to_clipboard()
 
+    elif unit_test == UnitTests.INDEX_MEMBERS:
+        members = fetch_index_members_weights(index='URTH US Equity')
+        # members = fetch_index_members_weights(index='URTH US Equity')
+        print(members)
+
     elif unit_test == UnitTests.OPTION_CHAIN:
         df = blp.bds('TSLA US Equity',
                      'CHAIN_TICKERS',
@@ -719,8 +752,10 @@ def run_unit_test(unit_test: UnitTests):
         #members = blp.bds("IBOXIG Index", 'INDX_MWEIGHT')
         #print(this)
         #print(members)
-        this = blp.bds("AAPL US Equity", "BCHAIN")
-        print(this)
+        # this = blp.bds("AAPL US Equity", "BCHAIN")
+        # print(this)
+        df = fetch_issuer_isins_from_bond_isins()
+        print(df)
 
 
 if __name__ == '__main__':
