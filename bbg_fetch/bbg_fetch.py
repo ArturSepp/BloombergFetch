@@ -128,7 +128,7 @@ def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Tuple[str], Dic
     elif isinstance(tickers, dict):
         tickers_ = list(tickers.keys())
     else:
-        raise NotImplemented(f"type={type(tickers)}")
+        raise NotImplementedError(f"type={type(tickers)}")
     field_data = blp.bdh(tickers_, field, start_date, end_date, CshAdjNormal=CshAdjNormal,
                          CshAdjAbnormal=CshAdjAbnormal, CapChg=CapChg)
 
@@ -197,13 +197,13 @@ def fetch_fundamentals(tickers: Union[List[str], Dict[str, str]],
     elif isinstance(tickers, dict):
         tickers_ = list(tickers.keys())
     else:
-        raise NotImplemented(f"tickers type={type(tickers)}")
+        raise NotImplementedError(f"tickers type={type(tickers)}")
     if isinstance(fields, list):
         fields_ = fields
     elif isinstance(fields, dict):
         fields_ = list(fields.keys())
     else:
-        raise NotImplemented(f"fields type={type(fields)}")
+        raise NotImplementedError(f"fields type={type(fields)}")
     df = blp.bdp(tickers=tickers_, flds=fields_)
     # align with given order of tickers
     df = df.reindex(index=tickers_).reindex(columns=fields)
@@ -473,7 +473,7 @@ def fetch_div_yields(tickers: Union[List[str], Dict[str, str]],
     elif isinstance(tickers, dict):
         tickers_ = list(tickers.keys())
     else:
-        raise NotImplemented(f"type={type(tickers)}")
+        raise NotImplementedError(f"type={type(tickers)}")
     divs = {}
     divs_1y = {}
     for ticker in tickers_:
@@ -721,8 +721,9 @@ def run_unit_test(unit_test: UnitTests):
         df.to_clipboard()
 
     elif unit_test == UnitTests.INDEX_MEMBERS:
-        members = fetch_index_members_weights(index='URTH US Equity')
         # members = fetch_index_members_weights(index='URTH US Equity')
+        # members = fetch_index_members_weights(index='URTH US Equity')
+        members = fetch_index_members_weights(index='LG30TRUH Index')
         print(members)
 
     elif unit_test == UnitTests.OPTION_CHAIN:
@@ -760,7 +761,7 @@ def run_unit_test(unit_test: UnitTests):
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.CHECK
+    unit_test = UnitTests.INDEX_MEMBERS
 
     is_run_all_tests = False
     if is_run_all_tests:
