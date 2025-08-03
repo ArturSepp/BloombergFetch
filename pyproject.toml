@@ -1,42 +1,253 @@
-[tool.poetry]
-name = "bbg_fetch"
-version = "1.0.39"
-description = "Bloomberg fetching analytics wrapping xbbg package"
-license = "LICENSE.txt"
-authors = ["Artur Sepp <artursepp@gmail.com>"]
-maintainers = ["Artur Sepp <artursepp@gmail.com>"]
-readme = "README.md"
-repository = "https://github.com/ArturSepp/BloombergFetch"
-documentation = "https://github.com/ArturSepp/BloombergFetch"
-keywords= ["quantitative", "investing", "portfolio optimization", "systematic strategies", "volatility"]
-classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Intended Audience :: Financial and Insurance Industry",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3 :: Only",
-        "Topic :: Office/Business :: Financial :: Investment",
-    ]
-
-packages = [ { include = "bbg_fetch" }]
-# exclude = ["bbg_fetch/bbg_data"]
-
-[tool.poetry.urls]
-"Issues" = "https://github.com/ArturSepp/BloombergFetch/issues"
-"Personal website" = "https://artursepp.com"
-
-[tool.poetry.dependencies]
-python = ">=3.8"
-pandas = ">=1.5.2"
-xbbg = ">=0.0.7"
+# pyproject.toml - Comprehensive configuration for BloombergFetch (bbg-fetch) package
+# Modern Python packaging configuration replacing setup.py
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "hatchling==1.27.0", "hatch-vcs"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bbg-fetch"
+version = "1.1.1"
+description = "Python functionality for getting different data from Bloomberg: prices, implied vols, fundamentals"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+authors = [
+    {name = "Artur Sepp", email = "artursepp@gmail.com"}
+]
+maintainers = [
+    {name = "Artur Sepp", email = "artursepp@gmail.com"}
+]
+keywords = [
+    "bloomberg",
+    "bloomberg api",
+    "bloomberg terminal",
+    "financial data",
+    "market data",
+    "equities",
+    "futures",
+    "options",
+    "bonds",
+    "fx data",
+    "implied volatility",
+    "fundamentals",
+    "credit data",
+    "quantitative finance",
+    "data fetching",
+    "xbbg",
+    "blpapi"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.8"
+
+# Core dependencies - always required for bbg-fetch to function
+dependencies = [
+    "numpy>=2.2.6",
+    "pandas>=2.3.1",
+    "pyarrow>=18.0.0",
+    "xbbg>=0.7.8",
+]
+
+[project.optional-dependencies]
+
+# Jupyter notebook support and interactive development
+jupyter = [
+    "jupyter>=1.0.0",
+    "notebook>=6.5.0",
+    "jupyterlab>=3.0.0",
+    "ipykernel>=6.0.0",
+    "ipywidgets>=8.0.0",
+]
+
+# Development tools and testing
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-xdist>=3.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+    "isort>=5.10.0",
+    "pre-commit>=3.0.0",
+]
+
+
+# All optional dependencies combined
+all = [
+    "bbg-fetch[jupyter,dev]"
+]
+
+# Minimal additional packages for most users
+extras = [
+    "bbg-fetch[reports,jupyter]"
+]
+
+[project.urls]
+Homepage = "https://github.com/ArturSepp/BloombergFetch"
+Documentation = "https://github.com/ArturSepp/BloombergFetch/blob/main/README.md"
+Repository = "https://github.com/ArturSepp/BloombergFetch.git"
+Issues = "https://github.com/ArturSepp/BloombergFetch/issues"
+Changelog = "https://github.com/ArturSepp/BloombergFetch/blob/main/CHANGELOG.md"
+
+# Version is now manually set in [project] section above
+
+# Package discovery configuration
+[tool.setuptools.packages.find]
+include = ["bbg_fetch*"]
+exclude = [
+    "tests*",
+    "docs*",
+    "bbg_fetch.examples.figures*",
+    "notebooks*"
+]
+
+# Include additional files in the package
+[tool.setuptools.package-data]
+bbg_fetch = [
+    "*.txt",
+    "*.md",
+    "*.yml",
+    "*.yaml",
+    "*.json",
+    "data/*.csv",
+    "templates/*.html",
+    "static/*.css",
+    "static/*.js"
+]
+
+# Explicitly exclude files from the package
+[tool.setuptools.exclude-package-data]
+"*" = [
+    "*/examples/figures/*",
+    "*/figures/*",
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.gif",
+    "*.svg"
+]
+
+# Black code formatting configuration
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort import sorting configuration
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# MyPy type checking configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "bloomberg: marks tests requiring Bloomberg Terminal access",
+    "equities: marks tests for equity data fetching",
+    "futures: marks tests for futures data fetching",
+    "options: marks tests for options data fetching",
+    "bonds: marks tests for bond data fetching",
+    "fx: marks tests for FX data fetching",
+    "fundamentals: marks tests for fundamental data fetching",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["bbg_fetch"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# Flake8 linting configuration  
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503", "E501"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    ".eggs",
+    "*.egg",
+]
