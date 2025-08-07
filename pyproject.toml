@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bbg-fetch"
-version = "1.1.1"
+version = "1.1.2"
 description = "Python functionality for getting different data from Bloomberg: prices, implied vols, fundamentals"
 readme = "README.md"
 license = {file = "LICENSE.txt"}
@@ -63,7 +63,7 @@ dependencies = [
     "numpy>=2.2.6",
     "pandas>=2.3.1",
     "pyarrow>=18.0.0",
-    "xbbg>=0.7.8",
+    "xbbg>=0.7.7",
 ]
 
 [project.optional-dependencies]

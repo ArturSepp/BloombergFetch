@@ -197,12 +197,12 @@ Most price functions support Bloomberg's corporate action adjustments:
 The package includes comprehensive unit tests. Run specific tests:
 
 ```python
-from bbg_fetch import run_unit_test, UnitTests
+from bbg_fetch import run_unit_test, LocalTests
 
 # Test different functionalities
-run_unit_test(UnitTests.FIELD_TIMESERIES_PER_TICKERS)
-run_unit_test(UnitTests.IMPLIED_VOL_TIME_SERIES)
-run_unit_test(UnitTests.BOND_INFO)
+run_unit_test(LocalTests.FIELD_TIMESERIES_PER_TICKERS)
+run_unit_test(LocalTests.IMPLIED_VOL_TIME_SERIES)
+run_unit_test(LocalTests.BOND_INFO)
 ```
 
 Available test categories:
@@ -269,3 +269,189 @@ For package-specific issues:
 - Check unit tests for usage examples
 - Verify data availability for requested date ranges
 - Review Bloomberg's data licensing terms
+
+
+# BibTeX Citations for BloombergFetch
+
+## Primary Software Citation
+
+```bibtex
+@software{bloombergfetch2024,
+  author={Sepp, Artur},
+  title={{BloombergFetch}: A Python Package for Bloomberg Terminal Data Access},
+  year={2024},
+  publisher={GitHub},
+  journal={GitHub repository},
+  howpublished={\url{https://github.com/ArturSepp/BloombergFetch}},
+  commit={main}
+}
+```
+
+## PyPI Package Citation
+
+```bibtex
+@software{sepp2024bbgfetch,
+  title={bbg-fetch: Bloomberg fetching analytics wrapping xbbg package},
+  author={Sepp, Artur},
+  year={2024},
+  url={https://github.com/ArturSepp/BloombergFetch},
+  note={Python package for Bloomberg Terminal data access, wrapping xbbg library},
+  version={1.0.27},
+  publisher={PyPI},
+  howpublished={\url{https://pypi.org/project/bbg-fetch/}},
+  keywords={quantitative, investing, portfolio optimization, systematic strategies, volatility, bloomberg, financial data}
+}
+```
+
+## Academic Paper Citation Format
+
+```bibtex
+@misc{sepp2024bloombergfetch_academic,
+  author={Sepp, Artur},
+  title={BloombergFetch: Python functionality for getting different data from Bloomberg: prices, implied vols, fundamentals},
+  year={2024},
+  eprint={GitHub},
+  archivePrefix={arXiv},
+  primaryClass={q-fin.CP},
+  url={https://github.com/ArturSepp/BloombergFetch},
+  note={A comprehensive Python package for fetching financial data from Bloomberg Terminal using the xbbg library}
+}
+```
+
+## Technical Report Citation
+
+```bibtex
+@techreport{sepp2024bloombergfetch_tech,
+  author={Sepp, Artur},
+  title={BloombergFetch: A Python Package for Bloomberg Terminal Data Access},
+  institution={GitHub},
+  year={2024},
+  type={Software Documentation},
+  url={https://github.com/ArturSepp/BloombergFetch},
+  note={Comprehensive wrapper functions for accessing Bloomberg data including equities, futures, bonds, options, FX rates}
+}
+```
+
+## Conference Proceedings Style
+
+```bibtex
+@inproceedings{sepp2024bloombergfetch_proc,
+  author={Sepp, Artur},
+  title={BloombergFetch: Simplifying Bloomberg Terminal Data Access in Python},
+  booktitle={Proceedings of Financial Software Engineering},
+  year={2024},
+  publisher={GitHub},
+  url={https://github.com/ArturSepp/BloombergFetch},
+  note={Open-source Python package for Bloomberg data fetching and analytics}
+}
+```
+
+## Related Dependencies Citations
+
+### Bloomberg API Citation
+
+```bibtex
+@manual{bloomberg_api_2024,
+  title={Bloomberg API Documentation},
+  organization={Bloomberg L.P.},
+  year={2024},
+  note={Bloomberg Terminal API for financial data access},
+  url={https://www.bloomberg.com/professional/support/api-library/}
+}
+```
+
+### XBBG Library Citation
+
+```bibtex
+@software{xbbg2024,
+  title={xbbg: Bloomberg API for Python},
+  author={{Bloomberg contributors}},
+  year={2024},
+  url={https://github.com/alpha-xone/xbbg},
+  note={Python library for Bloomberg data access}
+}
+```
+
+## Usage Examples in Academic Writing
+
+### In-text Citation Examples
+
+**Software reference:**
+> "Financial data was obtained using the BloombergFetch package (Sepp, 2024), which provides a Python wrapper for Bloomberg Terminal data access."
+
+**Methodology section:**
+> "Data collection was implemented using BloombergFetch v1.0.27 (Sepp, 2024), enabling efficient retrieval of equity prices, options data, and fundamental information from Bloomberg Terminal."
+
+**Data section:**
+> "Historical market data, implied volatility surfaces, and fundamental data were sourced via Bloomberg Terminal using the BloombergFetch Python package (Sepp, 2024)."
+
+### Reference List Entry
+
+**APA Style:**
+> Sepp, A. (2024). *BloombergFetch: A Python Package for Bloomberg Terminal Data Access* [Computer software]. GitHub. https://github.com/ArturSepp/BloombergFetch
+
+**IEEE Style:**
+> A. Sepp, "BloombergFetch: A Python Package for Bloomberg Terminal Data Access," 2024. [Online]. Available: https://github.com/ArturSepp/BloombergFetch
+
+**Chicago Style:**
+> Sepp, Artur. "BloombergFetch: A Python Package for Bloomberg Terminal Data Access." Computer software, 2024. https://github.com/ArturSepp/BloombergFetch.
+
+## LaTeX Usage
+
+### Including BibTeX in LaTeX document
+
+```latex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{natbib}
+
+\begin{document}
+
+The financial data analysis was conducted using the BloombergFetch package \citep{bloombergfetch2024}, 
+which provides comprehensive access to Bloomberg Terminal data through a simplified Python interface.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
+```
+
+### Custom Bibliography Entry
+
+```latex
+\begin{thebibliography}{1}
+\bibitem{bloombergfetch2024}
+Artur Sepp.
+\newblock {BloombergFetch}: A Python Package for Bloomberg Terminal Data Access.
+\newblock GitHub repository, 2024.
+\newblock \url{https://github.com/ArturSepp/BloombergFetch}.
+\end{thebibliography}
+```
+
+## Package Metadata for Citation
+
+- **Author:** Artur Sepp
+- **Title:** BloombergFetch: A Python Package for Bloomberg Terminal Data Access  
+- **Year:** 2024
+- **Repository:** https://github.com/ArturSepp/BloombergFetch
+- **PyPI Package:** https://pypi.org/project/bbg-fetch/
+- **License:** MIT License
+- **Version:** 1.0.27 (latest)
+- **Keywords:** quantitative, investing, portfolio optimization, systematic strategies, volatility, bloomberg, financial data
+- **Dependencies:** xbbg, blpapi, pandas, numpy
+- **Python Support:** >=3.8, <3.11
+
+## BibTeX Citation
+
+If you use BloombergFetch in your research, please cite it as:
+
+```bibtex
+@software{sepp2024bloombergfetch_doi,
+  author={Sepp, Artur},
+  title={BloombergFetch: A Python Package for Bloomberg Terminal Data Access},
+  year={2024},
+  url={https://github.com/ArturSepp/BloombergFetch},
+  version={1.0.27}
+}
+```

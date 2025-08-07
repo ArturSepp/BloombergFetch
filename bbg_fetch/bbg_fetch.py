@@ -582,13 +582,13 @@ def fetch_option_underlying_tickers_from_isins(isins: List[str] = ['DE000C77PRU9
     df = df.reindex(index=isins)
     return df
 
-    elif unit_test == UnitTests.OPTION_UNDERLYING_FROM_ISIN:
+    elif local_test == LocalTests.OPTION_UNDERLYING_FROM_ISIN:
         df = fetch_option_underlying_tickers_from_isins()
         print(df)
 """
 
 
-class UnitTests(Enum):
+class LocalTests(Enum):
     FIELD_TIMESERIES_PER_TICKERS = 1
     FIELDS_TIMESERIES_PER_TICKER = 2
     FUNDAMENTALS = 3
@@ -609,13 +609,18 @@ class UnitTests(Enum):
     CHECK = 18
 
 
-def run_unit_test(unit_test: UnitTests):
+def run_unit_test(local_test: LocalTests):
+    """Run local tests for development and debugging purposes.
+
+    These are integration tests that download real data and generate reports.
+    Use for quick verification during development.
+    """
 
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    if unit_test == UnitTests.FIELD_TIMESERIES_PER_TICKERS:
+    if local_test == LocalTests.FIELD_TIMESERIES_PER_TICKERS:
         #df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
         #                                        CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
         # df = fetch_field_timeseries_per_tickers(tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
@@ -625,11 +630,11 @@ def run_unit_test(unit_test: UnitTests):
         df = fetch_field_timeseries_per_tickers(tickers=['ZS877681 corp'], field='PX_LAST')
         print(df)
 
-    elif unit_test == UnitTests.FIELDS_TIMESERIES_PER_TICKER:
+    elif local_test == LocalTests.FIELDS_TIMESERIES_PER_TICKER:
         df = fetch_fields_timeseries_per_ticker(ticker='ES1 Index', fields=['PX_LAST', 'FUT_DAYS_EXP'])
         print(df)
 
-    elif unit_test == UnitTests.FUNDAMENTALS:
+    elif local_test == LocalTests.FUNDAMENTALS:
         # df = fetch_fundamentals(tickers=['AAPL US Equity', 'BAC US Equity'],
         #                        fields=['Security_Name', 'GICS_Sector_Name', 'CRNCY'])
         df = fetch_fundamentals(tickers=['HAHYIM2 HK Equity'],
@@ -637,15 +642,15 @@ def run_unit_test(unit_test: UnitTests):
                                         'fund_min_invest'])
         print(df)
 
-    elif unit_test == UnitTests.ACTIVE_FUTURES:
+    elif local_test == LocalTests.ACTIVE_FUTURES:
         field_data = fetch_active_futures(generic_ticker='ES1 Index')
         print(field_data)
 
-    elif unit_test == UnitTests.CONTRACT_TABLE:
+    elif local_test == LocalTests.CONTRACT_TABLE:
         df = fetch_futures_contract_table(ticker="NK1 Index")
         print(df)
 
-    elif unit_test == UnitTests.IMPLIED_VOL_TIME_SERIES:
+    elif local_test == LocalTests.IMPLIED_VOL_TIME_SERIES:
         # df = fetch_vol_timeseries(ticker='SPX Index', vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
         #                                                          IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
         #                                                          IMPVOL_FIELDS_MNY_12M])
@@ -653,11 +658,11 @@ def run_unit_test(unit_test: UnitTests):
                                                                       '1M_PUT_IMP_VOL_10DELTA_DFLT'])
         print(df)
 
-    elif unit_test == UnitTests.LAST_PRICES:
+    elif local_test == LocalTests.LAST_PRICES:
         fx_prices = fetch_last_prices()
         print(fx_prices)
 
-    elif unit_test == UnitTests.BOND_INFO:
+    elif local_test == LocalTests.BOND_INFO:
         # data = fetch_bonds_info()
         # print(data)
 
@@ -669,25 +674,25 @@ def run_unit_test(unit_test: UnitTests):
                                                                  'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur'])
         print(data)
 
-    elif unit_test == UnitTests.CDS_INFO:
+    elif local_test == LocalTests.CDS_INFO:
         data = fetch_cds_info()
         print(data)
 
-    elif unit_test == UnitTests.BALANCE_DATA:
+    elif local_test == LocalTests.BALANCE_DATA:
         data = fetch_balance_data(tickers=['ABI BB Equity', 'T US Equity', 'JPM US Equity', 'BAC US Equity'])
         print(data)
 
-    elif unit_test == UnitTests.TICKERS_FROM_ISIN:
+    elif local_test == LocalTests.TICKERS_FROM_ISIN:
         df = fetch_tickers_from_isins()
         print(df)
 
-    elif unit_test == UnitTests.DIVIDEND:
+    elif local_test == LocalTests.DIVIDEND:
         this = fetch_dividend_history(ticker='SDHA LN Equity')
         print(this)
         divs, divs_1y = fetch_div_yields(tickers=['AHYG SP Equity'])
         print(divs_1y)
 
-    elif unit_test == UnitTests.BOND_MEMBERS:
+    elif local_test == LocalTests.BOND_MEMBERS:
         # members = fetch_index_members_weights(index='SPCPGN Index')
         # members = fetch_index_members_weights('I31415US Index', END_DATE_OVERRIDE='20200101')
         # members = fetch_index_members_weights(index='I00182US Index')
@@ -720,13 +725,13 @@ def run_unit_test(unit_test: UnitTests):
         print(df)
         df.to_clipboard()
 
-    elif unit_test == UnitTests.INDEX_MEMBERS:
+    elif local_test == LocalTests.INDEX_MEMBERS:
         # members = fetch_index_members_weights(index='URTH US Equity')
         # members = fetch_index_members_weights(index='URTH US Equity')
         members = fetch_index_members_weights(index='LG30TRUH Index')
         print(members)
 
-    elif unit_test == UnitTests.OPTION_CHAIN:
+    elif local_test == LocalTests.OPTION_CHAIN:
         df = blp.bds('TSLA US Equity',
                      'CHAIN_TICKERS',
                      # CHAIN_EXP_DT_OVRD='20210917',
@@ -736,7 +741,7 @@ def run_unit_test(unit_test: UnitTests):
 
         print(df)
 
-    elif unit_test == UnitTests.YIELD_CURVE:
+    elif local_test == LocalTests.YIELD_CURVE:
         from datetime import date
         YC_US = blp.bds("YCGT0025 Index", "INDX_MEMBERS")
         print(YC_US)
@@ -748,7 +753,7 @@ def run_unit_test(unit_test: UnitTests):
 
         print(YC_US_VAL)
 
-    elif unit_test == UnitTests.CHECK:
+    elif local_test == LocalTests.CHECK:
         #this = blp.bds("LUACTRUU Index", "INDX_MEMBERS3")
         #members = blp.bds("IBOXIG Index", 'INDX_MWEIGHT')
         #print(this)
@@ -761,11 +766,4 @@ def run_unit_test(unit_test: UnitTests):
 
 if __name__ == '__main__':
 
-    unit_test = UnitTests.INDEX_MEMBERS
-
-    is_run_all_tests = False
-    if is_run_all_tests:
-        for unit_test in UnitTests:
-            run_unit_test(unit_test=unit_test)
-    else:
-        run_unit_test(unit_test=unit_test)
+    run_unit_test(local_test=LocalTests.INDEX_MEMBERS)
