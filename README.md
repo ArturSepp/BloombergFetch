@@ -447,11 +447,10 @@ Artur Sepp.
 If you use BloombergFetch in your research, please cite it as:
 
 ```bibtex
-@software{sepp2024bloombergfetch_doi,
+@software{sepp2024bloombergfetch,
   author={Sepp, Artur},
   title={BloombergFetch: A Python Package for Bloomberg Terminal Data Access},
   year={2024},
-  url={https://github.com/ArturSepp/BloombergFetch},
-  version={1.0.27}
+  url={https://github.com/ArturSepp/BloombergFetch}
 }
 ```
