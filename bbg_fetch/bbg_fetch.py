@@ -141,7 +141,7 @@ def fetch_field_timeseries_per_tickers(tickers: Union[List[str], Tuple[str], Dic
     # make sure all columns are returned
     field_data.index = pd.to_datetime(field_data.index)
     if freq is not None:
-        field_data = field_data.asfreq(freq, method='ffill')
+        field_data = field_data.asfreq(freq).ffill()
 
     # align columns
     field_data = field_data.reindex(columns=tickers_)
@@ -515,8 +515,8 @@ def fetch_index_members_weights(index: str = 'SPCPGN Index',
         members = blp.bds(index, 'INDX_MWEIGHT')
     else:
         members = blp.bds(index, 'INDX_MWEIGHT', END_DATE_OVERRIDE=END_DATE_OVERRIDE)
+    print(members)
     if members is not None and not members.empty:
-        print(members)
         members = members.set_index('member_ticker_and_exchange_code', drop=True)
     else:
         raise ValueError(f"no data for {index}")
@@ -607,6 +607,7 @@ class LocalTests(Enum):
     OPTION_CHAIN = 16
     YIELD_CURVE = 17
     CHECK = 18
+    MEMBERS = 19
 
 
 def run_unit_test(local_test: LocalTests):
@@ -627,7 +628,9 @@ def run_unit_test(local_test: LocalTests):
         # df = fetch_field_timeseries_per_tickers(tickers=['EUR003M Index'], field='PX_LAST')
         # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty'], field='FUT_EQV_DUR_NOTL')
         # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty', 'UXY1 Comdty'], start_date=pd.Timestamp('01Jan2015'), field='FUT_EQV_DUR_NOTL')
-        df = fetch_field_timeseries_per_tickers(tickers=['ZS877681 corp'], field='PX_LAST')
+        # df = fetch_field_timeseries_per_tickers(tickers=['ZS877681 corp'], field='PX_LAST')
+        df = fetch_field_timeseries_per_tickers(tickers=['GTDEM3Y Govt'], field='PX_LAST')
+
         print(df)
 
     elif local_test == LocalTests.FIELDS_TIMESERIES_PER_TICKER:
@@ -698,7 +701,7 @@ def run_unit_test(local_test: LocalTests):
         # members = fetch_index_members_weights(index='I00182US Index')
         # members = fetch_index_members_weights('LUACTRUU Index')
         # members = fetch_index_members_weights('BEUCTRUU Index')
-        members = fetch_index_members_weights('I30902US Index')
+        members = fetch_index_members_weights('H04064US Index')
 
         print(members)
 
@@ -763,7 +766,21 @@ def run_unit_test(local_test: LocalTests):
         df = fetch_issuer_isins_from_bond_isins()
         print(df)
 
+    elif local_test == LocalTests.MEMBERS:
+        index = 'H04064US Index'
+        members = blp.bds(index, 'INDX_MEMBERS3') # , overrides=[('DISPLAY_ID_BB_GLOBAL_OVERRIDE', True)]
+        print(members)
+        fields = ['id_bb', 'name', 'security_des',
+                  'ult_parent_ticker_exchange', 'crncy',
+                  'px_last',
+                  'yas_bond_yld', 'yas_mod_dur', 'bb_composite']
+
+        df = fetch_bonds_info(isins=members.iloc[:, 0].to_list(),
+                              fields=fields)
+        print(members)
+        print(df)
+
 
 if __name__ == '__main__':
 
-    run_unit_test(local_test=LocalTests.INDEX_MEMBERS)
+    run_unit_test(local_test=LocalTests.FIELD_TIMESERIES_PER_TICKERS)
