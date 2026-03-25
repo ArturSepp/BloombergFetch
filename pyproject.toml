@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bbg-fetch"
-version = "1.1.3"
+version = "2.0.0"
 description = "Python functionality for getting different data from Bloomberg: prices, implied vols, fundamentals"
 readme = "README.md"
 license = {text = "MIT"}
@@ -21,7 +21,7 @@ keywords = [
     "market data",
     "implied volatility",
     "quantitative finance",
-    "xbbg",
+    "blpapi",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -44,7 +44,6 @@ requires-python = ">=3.9"
 dependencies = [
     "numpy>=2.0",
     "pandas>=2.2.0",
-    "xbbg>=0.7.7",
 ]
 
 [project.optional-dependencies]
