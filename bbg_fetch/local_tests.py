@@ -59,6 +59,7 @@ class LocalTests(Enum):
     YIELD_CURVE = 17
     CHECK = 18
     MEMBERS = 19
+    FORWARD = 20
 
 
 def run_local_test(local_test: LocalTests) -> None:
@@ -80,7 +81,7 @@ def run_local_test(local_test: LocalTests) -> None:
         # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty'], field='FUT_EQV_DUR_NOTL')
         # df = fetch_field_timeseries_per_tickers(tickers=['TY1 Comdty', 'UXY1 Comdty'], start_date=pd.Timestamp('01Jan2015'), field='FUT_EQV_DUR_NOTL')
         # df = fetch_field_timeseries_per_tickers(tickers=['ZS877681 corp'], field='PX_LAST')
-        df = fetch_field_timeseries_per_tickers(tickers=['GTDEM3Y Govt'], field='PX_LAST')
+        df = fetch_field_timeseries_per_tickers(tickers=['LSFCTRCU Index'], field='PX_LAST')
 
         print(df)
 
@@ -105,11 +106,15 @@ def run_local_test(local_test: LocalTests) -> None:
         print(df)
 
     elif local_test == LocalTests.IMPLIED_VOL_TIME_SERIES:
-        df = fetch_vol_timeseries(ticker='SPX Index', vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
-                                                                  IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
-                                                                  IMPVOL_FIELDS_MNY_12M])
+        df = fetch_vol_timeseries(ticker='SPX Index',
+                                  vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
+                                              IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
+                                              IMPVOL_FIELDS_MNY_12M],
+                                  add_forwards=True)
         # df = fetch_vol_timeseries(ticker='EURUSD Curncy', vol_fields=['1M_CALL_IMP_VOL_10DELTA_DFLT', '1M_PUT_IMP_VOL_10DELTA_DFLT'])
+        print(df.columns)
         print(df)
+        df.to_excel('C://Users//artur//OneDrive//analytics//outputs//spx_implied_vols.xlsx')
 
     elif local_test == LocalTests.LAST_PRICES:
         fx_prices = fetch_last_prices()
@@ -217,9 +222,17 @@ def run_local_test(local_test: LocalTests) -> None:
         print(members)
         print(df)
 
+    elif local_test == LocalTests.FORWARD:
+
+        pass
+
 
 if __name__ == '__main__':
+    pd.set_option('display.max_rows', 500)
+    pd.set_option('display.max_columns', 100)
+    pd.set_option('display.width', 200)
     #for local_test in LocalTests:
     #    print(local_test)
     #    run_local_test(local_test=local_test)
-    run_local_test(local_test=LocalTests.FIELD_TIMESERIES_PER_TICKERS)
+    run_local_test(local_test=LocalTests.IMPLIED_VOL_TIME_SERIES)
+

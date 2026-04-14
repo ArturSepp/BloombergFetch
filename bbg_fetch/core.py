@@ -20,6 +20,14 @@ from bbg_fetch._blp_api import bdp, bdh, bds
 DEFAULT_START_DATE = pd.Timestamp('01Jan1959')
 VOLS_START_DATE = pd.Timestamp('03Jan2005')
 
+DEFAULT_TENOR_YEARS = {
+    '30d': 30 / 365,
+    '60d': 60 / 365,
+    '3m': 0.25,
+    '6m': 0.5,
+    '12m': 1.0,
+}
+
 FX_DICT = {
     'EURUSD Curncy': 'EUR',
     'GBPUSD Curncy': 'GBP',
@@ -324,11 +332,53 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
                          start_date: pd.Timestamp = VOLS_START_DATE,
                          rate_index: str = 'usgg3m Index',
                          add_underlying: bool = True,
+                         add_forwards: bool = False,
+                         tenor_years: Optional[Dict[str, float]] = None,
                          rename: bool = True,
                          scaler: Optional[float] = 0.01
                          ) -> pd.DataFrame:
     """
-    fetch imlied vols specified in  vol_fields
+    Fetch implied vol time series with optional underlying data and forward prices.
+
+    Supports three vol_fields input modes:
+    - Single dict: one tenor, e.g. IMPVOL_FIELDS_DELTA
+    - List of dicts: multi-tenor surface, e.g. [IMPVOL_FIELDS_MNY_30DAY, ..., IMPVOL_FIELDS_MNY_12M]
+      Each dict is fetched as a separate Bloomberg call (avoids field-count limits).
+    - List of strings: raw Bloomberg field names, no renaming applied.
+
+    Parameters
+    ----------
+    ticker : str
+        Bloomberg ticker, e.g. 'SPX Index', 'EURUSD Curncy'.
+    vol_fields : dict or list
+        Implied vol field specification. Dict keys are Bloomberg field names,
+        values are short labels for column renaming.
+    start_date : pd.Timestamp
+        Start date for historical data.
+    rate_index : str
+        Bloomberg ticker for risk-free rate, e.g. 'usgg3m Index'.
+    add_underlying : bool
+        If True, prepend spot_price, div_yield (trailing 12M), and rf_rate columns.
+    add_forwards : bool
+        If True, compute per-tenor implied forwards and discount factors.
+        Adds columns fwd_{tenor} = S * exp((r - q) * T) and df_{tenor} = exp(-r * T).
+        Requires add_underlying=True.
+    tenor_years : dict, optional
+        Map of tenor label → year fraction for forward/discount factor computation.
+        Default: {'30d': 30/365, '60d': 60/365, '3m': 0.25, '6m': 0.5, '12m': 1.0}
+    rename : bool
+        If True, rename vol columns using dict values. Ignored for list-of-strings input.
+    scaler : float, optional
+        Multiply vol and rate values by this factor. Default 0.01 converts
+        Bloomberg's percentage values (e.g. 20.5) to decimals (0.205).
+
+    Returns
+    -------
+    pd.DataFrame
+        DatetimeIndex. Columns depend on options:
+        - Vol columns: renamed labels (e.g. '30d100.0') or raw Bloomberg field names
+        - If add_underlying: spot_price, div_yield, rf_rate
+        - If add_forwards: fwd_30d, fwd_60d, ..., df_30d, df_60d, ...
     """
     # handle list of dicts: fetch each tenor separately and concatenate
     if isinstance(vol_fields, list) and len(vol_fields) > 0 and isinstance(vol_fields[0], dict):
@@ -367,8 +417,18 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
         if scaler is not None:
             rate_3m *= scaler
         rate_3m = rate_3m.rename({'PX_LAST': 'rf_rate'}, axis=1)
-        # drop row when vols are missing
         df = pd.concat([price, rate_3m, df], axis=1)
+
+        if add_forwards:
+            if tenor_years is None:
+                tenor_years = DEFAULT_TENOR_YEARS
+            r = df['rf_rate']
+            q = df['div_yield']
+            s = df['spot_price']
+            for label, T in tenor_years.items():
+                df[f'fwd_{label}'] = s * np.exp((r - q) * T)
+                df[f'df_{label}'] = np.exp(-r * T)
+
     return df
 
 
@@ -522,18 +582,17 @@ def fetch_div_yields(tickers: Union[List[str], Dict[str, str]],
 
 
 def fetch_index_members_weights(index: str = 'SPCPGN Index',
-                                field: str = 'INDX_MEMBERS',
+                                field: str = 'INDX_MWEIGHT',
                                 END_DATE_OVERRIDE: Optional[str] = None
                                 ) -> pd.DataFrame:
     if END_DATE_OVERRIDE is None:
         members = bds(index, field)
     else:
         members = bds(index, field, END_DATE_OVERRIDE=END_DATE_OVERRIDE)
-    print(members)
     if members is not None and not members.empty:
-        members = members.set_index('member_ticker_and_exchange_code', drop=True)
+        members = members.set_index(members.columns[0], drop=True)
     else:
-        raise ValueError(f"no data for {index}")
+        raise ValueError(f"no data for {index} / {field}")
     return members
 
 
