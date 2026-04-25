@@ -67,17 +67,20 @@ Same result. One line.
 
 ### vs. xbbg
 
-xbbg is a capable library, but its v1 rewrite introduced a Rust core, `narwhals`, and `pyarrow>=22` as hard dependencies — over 30MB of transitive installs for what most quant teams use: `bdp`, `bdh`, and `bds`.
+xbbg is a capable library, but its v1 rewrite introduced a Rust core plus `narwhals` and `pyarrow>=22`, so a fresh install is heavier than bbg-fetch. The size comparison should be like-for-like: wheel size versus wheel size, and full transitive install versus full transitive install.
 
 | | **bbg-fetch** | **xbbg v1** |
 |---|---|---|
-| Dependencies | `numpy` + `pandas` | `narwhals` + `pyarrow` + Rust binary |
-| Install size | ~50KB (plus blpapi) | ~30MB+ transitive |
+| Dependencies | `numpy` + `pandas` | `narwhals` + `pyarrow` + Rust extension |
+| Wheel size | 22KB (`bbg-fetch==2.0.0`) | ~1.9–2.2MB (`xbbg==1.1.2`, platform wheel) |
+| Fresh install size | ~74MB including pandas/numpy | ~89MB including pyarrow/narwhals |
 | Python support | 3.9–3.12 | 3.10–3.14 |
 | Intraday bars / streaming | No | Yes |
 | Exchange-aware market hours | No | Yes |
 | Session management | Automatic singleton | Configurable pool |
 | Debug Bloomberg errors | Your code, 400 lines | Third-party internals |
+
+Fresh install sizes above are clean `uv pip install --target` measurements and exclude `blpapi`. xbbg's Rust core is used for performance and for sharing one Bloomberg engine across Python, JavaScript, and MCP/server surfaces; bbg-fetch remains the smaller path when you only need BDP/BDH/BDS-style workflows.
 
 **bbg-fetch is for teams that need historical, reference, and bulk data — reliably, with minimal dependencies.** If you need intraday bars or real-time streaming, use xbbg.
 
