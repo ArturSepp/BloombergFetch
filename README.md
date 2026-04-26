@@ -73,14 +73,14 @@ xbbg is a capable library, but its v1 rewrite introduced a Rust core plus `narwh
 |---|---|---|
 | Dependencies | `numpy` + `pandas` | `narwhals` + `pyarrow` + Rust extension |
 | Wheel size | 22KB (`bbg-fetch==2.0.0`) | ~1.9–2.2MB (`xbbg==1.1.2`, platform wheel) |
-| Fresh install size | ~74MB including pandas/numpy | ~89MB including pyarrow/narwhals |
+| Fresh install size | ~74 MiB including pandas/numpy | ~89 MiB including pyarrow/narwhals |
 | Python support | 3.9–3.12 | 3.10–3.14 |
 | Intraday bars / streaming | No | Yes |
 | Exchange-aware market hours | No | Yes |
 | Session management | Automatic singleton | Configurable pool |
 | Debug Bloomberg errors | Your code, 400 lines | Third-party internals |
 
-Fresh install sizes above are clean `uv pip install --target` measurements and exclude `blpapi`. xbbg's Rust core is used for performance and for sharing one Bloomberg engine across Python, JavaScript, and MCP/server surfaces; bbg-fetch remains the smaller path when you only need BDP/BDH/BDS-style workflows.
+Fresh install sizes above are clean `uv pip install --target` measurements on Windows 11 AMD64 with CPython 3.12.13, excluding `blpapi`, using current resolver output at measurement time. They vary by platform and dependency versions: native wheels such as `pyarrow`, `numpy`, and `pandas` can materially change totals.
 
 **bbg-fetch is for teams that need historical, reference, and bulk data — reliably, with minimal dependencies.** If you need intraday bars or real-time streaming, use xbbg.
 
