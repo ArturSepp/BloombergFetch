@@ -67,26 +67,27 @@ Same result. One line.
 
 ### vs. xbbg
 
-xbbg is a capable library, but its v1 rewrite introduced a Rust core plus `narwhals` and `pyarrow>=22`, so a fresh install is heavier than bbg-fetch. The size comparison should be like-for-like: wheel size versus wheel size, and full transitive install versus full transitive install.
+xbbg is a capable, feature-rich Bloomberg stack. For the latest `main` branch, local measurements show a significantly smaller default install footprint and fewer default Python dependencies than `bbg-fetch`: the default runtime dependency is `narwhals>=2.0`, with `pyarrow` available as an optional extra. The comparison below uses like-for-like local measurements for `bbg-fetch` and an xbbg wheel built from current `main`.
 
-| | **bbg-fetch** | **xbbg v1** |
+| | **bbg-fetch 2.0.0** | **xbbg main wheel** |
 |---|---|---|
-| Dependencies | `numpy` + `pandas` | `narwhals` + `pyarrow` + Rust extension |
-| Wheel size | 22KB (`bbg-fetch==2.0.0`) | ~1.9–2.2MB (`xbbg==1.1.2`, platform wheel) |
-| Fresh install size | ~74–92 MiB including pandas/numpy | ~89–156 MiB including pyarrow/narwhals |
-| Python support | 3.9–3.12 | 3.10+ |
+| Default Python dependencies | `numpy` + `pandas` | `narwhals` (`pyarrow` is optional) |
+| Native code | No package-native extension | Rust extension |
+| Wheel size | 22KB | 1.90 MiB (`cp314-win_amd64`, built from `alpha-xone/xbbg@ad0cf7c`) |
+| Fresh install size | 73.9 MiB on Windows x64 / CPython 3.12; cross-platform range ~74–92 MiB | 8.0 MiB on Windows x64 / CPython 3.14 from the locally built main wheel |
+| Python support | 3.9–3.12 | 3.10–3.14 |
 | Intraday bars / streaming | No | Yes |
 | Exchange-aware market hours | No | Yes |
 | Session management | Automatic singleton | Configurable pool |
 | Debug Bloomberg errors | Your code, 400 lines | Third-party internals |
 
-Fresh-install ranges are clean CPython 3.12 `uv pip install --target` measurements across Windows x64, Linux x86_64, and macOS x64/arm64, excluding `blpapi`; exact totals vary with platform and resolver output.
+Fresh-install numbers are clean `uv pip install --target` measurements excluding `blpapi`. The xbbg wheel measurement uses a locally built `cp314-win_amd64` wheel from `alpha-xone/xbbg@ad0cf7c`; exact totals will vary by platform, Python tag, and final release build.
 
-**bbg-fetch is for teams that need historical, reference, and bulk data — reliably, with minimal dependencies.** If you need intraday bars or real-time streaming, use xbbg.
+**bbg-fetch is for teams that need historical, reference, and bulk data through a small direct Bloomberg wrapper.** If you need intraday bars or real-time streaming, use xbbg.
 
 ### The sweet spot
 
-bbg-fetch sits between raw blpapi (too low-level) and xbbg (too many dependencies). It wraps the three Bloomberg services that cover 95% of quant workflows — BDP, BDH, BDS — into high-level functions that return clean DataFrames with proper column naming, corporate action adjustments, and index alignment.
+bbg-fetch sits between raw blpapi (too low-level) and feature-rich Bloomberg stacks such as xbbg. It wraps the three Bloomberg services that cover 95% of many quant workflows — BDP, BDH, BDS — into high-level functions that return clean DataFrames with proper column naming, corporate action adjustments, and index alignment.
 
 ---
 
