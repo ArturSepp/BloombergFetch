@@ -67,21 +67,22 @@ Same result. One line.
 
 ### vs. xbbg
 
-xbbg is a capable, feature-rich Bloomberg stack. For the latest `main` branch, local measurements show a significantly smaller default install footprint and fewer default Python dependencies than `bbg-fetch`: the default runtime dependency is `narwhals>=2.0`, with `pyarrow` available as an optional extra. The comparison below uses like-for-like local measurements for `bbg-fetch` and an xbbg wheel built from current `main`.
+xbbg is a capable, feature-rich Bloomberg stack. With the published `xbbg==1.2.0` release, the default install is now much smaller than `bbg-fetch` in like-for-like local measurements: xbbg's only default runtime dependency is `narwhals>=2.0`, while `pyarrow` is optional. The comparison below uses PyPI wheels measured on the same Windows x64 / CPython 3.12 target.
 
-| | **bbg-fetch 2.0.0** | **xbbg main wheel** |
+| | **bbg-fetch 2.0.0** | **xbbg 1.2.0** |
 |---|---|---|
 | Default Python dependencies | `numpy` + `pandas` | `narwhals` (`pyarrow` is optional) |
 | Native code | No package-native extension | Rust extension |
-| Wheel size | 22KB | 1.90 MiB (`cp314-win_amd64`, built from `alpha-xone/xbbg@ad0cf7c`) |
-| Fresh install size | 73.9 MiB on Windows x64 / CPython 3.12; cross-platform range ~74–92 MiB | 8.0 MiB on Windows x64 / CPython 3.14 from the locally built main wheel |
-| Python support | 3.9–3.12 | 3.10–3.14 |
+| Wheel size | 0.021 MiB (`bbg_fetch-2.0.0-py3-none-any.whl`) | 2.029 MiB (`xbbg-1.2.0-cp312-cp312-win_amd64.whl`) |
+| Fresh install size | 73.929 MiB | 8.391 MiB |
+| Largest installed entries | `pandas` 33.019 MiB; `numpy` + `numpy.libs` 38.839 MiB | `xbbg` 6.450 MiB; `narwhals` 1.800 MiB |
+| Python support | 3.9+ | 3.10–3.14 |
 | Intraday bars / streaming | No | Yes |
 | Exchange-aware market hours | No | Yes |
 | Session management | Automatic singleton | Configurable pool |
 | Debug Bloomberg errors | Your code, 400 lines | Third-party internals |
 
-Fresh-install numbers are clean `uv pip install --target` measurements excluding `blpapi`. The xbbg wheel measurement uses a locally built `cp314-win_amd64` wheel from `alpha-xone/xbbg@ad0cf7c`; exact totals will vary by platform, Python tag, and final release build.
+Fresh-install numbers are clean `uv pip install --target` measurements with `--python-version 3.12`, `--python-platform x86_64-pc-windows-msvc`, and `--only-binary :all:`, excluding `blpapi` for both packages. The xbbg measurement cites the published [`xbbg==1.2.0`](https://github.com/alpha-xone/xbbg/releases/tag/v1.2.0) / PyPI release rather than a locally built main-branch wheel. Exact totals will vary by platform and dependency resolver date; this run resolved `bbg-fetch` to `pandas==3.0.2` / `numpy==2.4.4` and xbbg to `narwhals==2.20.0`.
 
 **bbg-fetch is for teams that need historical, reference, and bulk data through a small direct Bloomberg wrapper.** If you need intraday bars or real-time streaming, use xbbg.
 
