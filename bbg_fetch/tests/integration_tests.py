@@ -147,7 +147,7 @@ def run_local_test(local_test: LocalTests) -> None:
     elif local_test == LocalTests.DIVIDEND:
         this = fetch_dividend_history(ticker='TIP US Equity')
         print(this)
-        divs, divs_1y = fetch_div_yields(tickers=['AHYG SP Equity'])
+        _, _, divs_1y= fetch_div_yields(tickers=['AHYG SP Equity'])
         print(divs_1y)
 
     elif local_test == LocalTests.BOND_MEMBERS:
@@ -174,7 +174,8 @@ def run_local_test(local_test: LocalTests) -> None:
     elif local_test == LocalTests.INDEX_MEMBERS:
         # members = fetch_index_members_weights(index='URTH US Equity')
         # members = fetch_index_members_weights(index='URTH US Equity')
-        members = fetch_index_members_weights(index='LG30TRUH Index')
+        # members = fetch_index_members_weights(index='LG30TRUH Index')
+        members = fetch_index_members_weights(index='SPX Index')
         print(members)
 
     elif local_test == LocalTests.OPTION_CHAIN:
@@ -233,4 +234,4 @@ if __name__ == '__main__':
     #for local_test in LocalTests:
     #    print(local_test)
     #    run_local_test(local_test=local_test)
-    run_local_test(local_test=LocalTests.FIELD_TIMESERIES_PER_TICKERS)
+    run_local_test(local_test=LocalTests.INDEX_MEMBERS)

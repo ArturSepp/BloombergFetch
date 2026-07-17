@@ -685,13 +685,16 @@ def fetch_dividend_history(ticker: str = 'TIP US Equity') -> pd.DataFrame:
 
 def fetch_div_yields(tickers: Union[Sequence[str], Dict[str, str]],
                      dividend_types: Sequence[str] = ('Income', 'Distribution')
-                     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Per-event dividend amounts and trailing-twelve-month rolling sums.
+    Per-event dividend amounts, trailing-twelve-month rolling sums, and trailing-12m yields.
 
     Aggregates duplicate ``ex_date`` events by ``declared_date`` (e.g. when a
     single distribution is split into multiple records) so each economic
-    dividend is counted once.
+    dividend is counted once. The yield divides the trailing-12m dividend by the
+    dividend-UNADJUSTED price (``PX_LAST`` with cash adjustment off), so the
+    denominator is the actual traded price that drops on each ex-date -- not a
+    total-return price. Dividing by a cash-adjusted price would understate the yield.
 
     Parameters
     ----------
@@ -701,7 +704,7 @@ def fetch_div_yields(tickers: Union[Sequence[str], Dict[str, str]],
     dividend_types : sequence of str
         Filter on the ``dividend_type`` column from ``DVD_HIST_ALL``. Common
         values: ``'Income'``, ``'Distribution'``, ``'Return of Capital'``,
-        ``'Accumulation'``. Default ``('Income', 'Distribution')`` — excludes
+        ``'Accumulation'``. Default ``('Income', 'Distribution')`` -- excludes
         return-of-capital and accumulation events typical of ETFs.
 
     Returns
@@ -710,9 +713,12 @@ def fetch_div_yields(tickers: Union[Sequence[str], Dict[str, str]],
         Per-event dividend amounts. DatetimeIndex on ``ex_date``; columns are
         tickers (or dict-mapped labels).
     divs_1y : pd.DataFrame
-        365-calendar-day rolling sum of ``divs`` — the trailing-twelve-month
-        dividend amount as of each ex-date. Use as the numerator in a
-        1-year yield by dividing by the spot price on the same date.
+        365-calendar-day rolling sum of ``divs`` -- the trailing-twelve-month
+        dividend amount as of each ex-date.
+    divs_yield : pd.DataFrame
+        Trailing-twelve-month yield: ``divs_1y`` forward-filled onto the daily
+        unadjusted-price grid and divided by that price. Decimal (0.03 == 3%).
+        DatetimeIndex on price dates; columns match ``divs``.
     """
     if isinstance(tickers, (list, tuple)):
         tickers_ = list(tickers)
@@ -722,6 +728,7 @@ def fetch_div_yields(tickers: Union[Sequence[str], Dict[str, str]],
         raise NotImplementedError(f"type={type(tickers)}")
     divs = {}
     divs_1y = {}
+    divs_yield = {}
     for ticker in tickers_:
         div = fetch_dividend_history(ticker=ticker)
         if not div.empty:
@@ -744,14 +751,28 @@ def fetch_div_yields(tickers: Union[Sequence[str], Dict[str, str]],
                 valid_div = valid_div.sort_index()
                 valid_div_amount = valid_div['dividend_amount']
                 divs[ticker] = valid_div_amount
-                divs_1y[ticker] = valid_div_amount.rolling("365D").sum()  # assume 365 B days in year
+                rolling_1y = valid_div_amount.rolling("365D").sum()  # assume 365 days in year
+                divs_1y[ticker] = rolling_1y
+
+                # yield = trailing-12m dividend / dividend-UNADJUSTED price. Cash adjustment is
+                # turned off so the price is the actual traded price (which drops on ex-dates),
+                # not a total-return price -- dividing a dividend by a total-return price is wrong.
+                px = fetch_fields_timeseries_per_ticker(
+                    ticker=ticker, fields=('PX_LAST',),
+                    CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
+                if px is not None and not px.empty:
+                    px_last = px['PX_LAST']
+                    rolling_on_px = rolling_1y.reindex(index=px_last.index, method='ffill')
+                    divs_yield[ticker] = rolling_on_px / px_last
     divs = pd.DataFrame.from_dict(divs, orient='columns').reindex(columns=tickers)
     divs_1y = pd.DataFrame.from_dict(divs_1y, orient='columns').reindex(columns=tickers)
+    divs_yield = pd.DataFrame.from_dict(divs_yield, orient='columns').reindex(columns=tickers)
     if isinstance(tickers, dict):
         divs = divs.rename(tickers, axis=1)
         divs_1y = divs_1y.rename(tickers, axis=1)
+        divs_yield = divs_yield.rename(tickers, axis=1)
 
-    return divs, divs_1y
+    return divs, divs_1y, divs_yield
 
 
 def fetch_index_members_weights(index: str = 'SPCPGN Index',

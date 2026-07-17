@@ -351,13 +351,13 @@ divs = fetch_dividend_history(ticker='AAPL US Equity')
 #          dividend_amount, dividend_frequency, dividend_type
 
 # Trailing 1-year dividend yield for multiple tickers
-div_amounts, div_yields_1y = fetch_div_yields(
+_, _, div_yields_1y = fetch_div_yields(
     tickers=['AHYG SP Equity', 'TIP US Equity'],
     dividend_types=('Income', 'Distribution')
 )
 
 # With renaming
-div_amounts, div_yields_1y = fetch_div_yields(
+_, _, div_yields_1y = fetch_div_yields(
     tickers={'TIP US Equity': 'TIPS', 'SDHA LN Equity': 'Asia HY'}
 )
 ```
