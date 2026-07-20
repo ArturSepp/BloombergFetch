@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+title: "BloombergFetch: A Python Package for Bloomberg Terminal Data Access"
+authors:
+  - family-names: Sepp
+    given-names: Artur
+repository-code: "https://github.com/ArturSepp/BloombergFetch"
+url: "https://pypi.org/project/bbg-fetch/"
+license: MIT
+version: 2.0.3
+date-released: "2026-07-17"
+keywords:
+  - bloomberg-api
+  - market-data
+  - financial-data
+  - pandas
+  - blpapi
+  - python
