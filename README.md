@@ -1,4 +1,4 @@
-# bbg-fetch
+# BloombergFetch (`bbg-fetch`)
 
 **Bloomberg data in DataFrames. No boilerplate.**
 
@@ -18,8 +18,8 @@ prices = fetch_field_timeseries_per_tickers(
 [![PyPI](https://img.shields.io/pypi/v/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
 [![Python](https://img.shields.io/pypi/pyversions/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
 [![License](https://img.shields.io/github/license/ArturSepp/BloombergFetch.svg?style=flat-square)](LICENSE.txt)
-[![Downloads](https://pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)
-[![Stars](https://img.shields.io/github/stars/ArturSepp/BloombergFetch?style=flat-square&logo=github)](https://github.com/ArturSepp/BloombergFetch)
+[![Downloads](https://static.pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)
+[![Monthly](https://static.pepy.tech/badge/bbg-fetch/month)](https://pepy.tech/project/bbg-fetch)
 
 ---
 
@@ -89,6 +89,12 @@ bbg-fetch wraps the three Bloomberg services that cover most quant workflows —
 - Carry computation built into futures contract tables
 
 ---
+
+## When to use it — and when not
+
+`bbg-fetch` targets research workflows: request/response pulls of reference data, price histories, volatility surfaces, and index constituents into analysis-ready DataFrames from a machine running the Bloomberg Terminal (Desktop API via `blpapi`). A terminal login and the corresponding data entitlements are required — the package wraps access, it does not provide data.
+
+It is request/response by design: no streaming subscriptions and no intraday tick capture. Where no terminal is available, the examples in [`qis`](https://github.com/ArturSepp/QuantInvestStrats) run on free Yahoo data instead.
 
 ## Installation
 
@@ -611,6 +617,23 @@ Use `.\` prefix for relative paths: `.\.venv\Scripts\python.exe`, not `.venv\Scr
 - **`bdp()`, `bdh()`, `bds()` exported** for direct low-level access
 - **Robust field name handling** — Bloomberg's inconsistent casing/spacing/hyphens normalized automatically
 - **Migration from v1.x:** all imports unchanged
+
+## Ecosystem
+
+This package is part of an open-source Python stack for quantitative finance — full catalogue at [github.com/ArturSepp](https://github.com/ArturSepp):
+
+| Package | Purpose |
+|---|---|
+| [`qis`](https://github.com/ArturSepp/QuantInvestStrats) | Performance analytics, factsheets, and visualisation |
+| [`optimalportfolios`](https://github.com/ArturSepp/OptimalPortfolios) | Portfolio construction and backtesting |
+| [`factorlasso`](https://github.com/ArturSepp/factorlasso) | Sparse factor models and factor covariance estimation |
+| [`bbg-fetch`](https://github.com/ArturSepp/BloombergFetch) *(this package)* | Bloomberg data fetching |
+| [`trendfollowing`](https://github.com/ArturSepp/TrendFollowingSystems) | Trend-following systems: closed-form theory and replication |
+| [`goal-based-allocation`](https://github.com/ArturSepp/GoalBasedAllocation) | Dynamic MV allocation under regime-switching jump-diffusions |
+| [`stochvolmodels`](https://github.com/ArturSepp/StochVolModels) | Stochastic volatility pricing analytics |
+| [`vanilla-option-pricers`](https://github.com/ArturSepp/VanillaOptionPricers) | Vectorised vanilla option pricers and implied volatility fitters |
+
+Dependency links within the stack: `optimalportfolios` builds on `qis` and `factorlasso`; `trendfollowing` builds on `qis`.
 
 ## License
 
