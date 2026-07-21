@@ -5,6 +5,7 @@ title: "BloombergFetch: A Python Package for Bloomberg Terminal Data Access"
 authors:
   - family-names: Sepp
     given-names: Artur
+    orcid: "https://orcid.org/0000-0002-7038-1748"
 repository-code: "https://github.com/ArturSepp/BloombergFetch"
 url: "https://pypi.org/project/bbg-fetch/"
 license: MIT
