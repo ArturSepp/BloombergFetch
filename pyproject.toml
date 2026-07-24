@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bbg-fetch"
-version = "2.0.3"
+version = "2.3.0"
 description = "Python functionality for getting different data from Bloomberg: prices, implied vols, fundamentals"
 readme = "README.md"
 license = {text = "MIT"}
