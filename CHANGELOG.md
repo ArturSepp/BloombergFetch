@@ -7,6 +7,40 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-07-24
+
+### Added
+- `fetch_vol_surface()` returns the implied-vol surface for one date as a DataFrame indexed by
+  tenor with moneyness columns (the OVDV moneyness grid), reshaping the same
+  `{tenor}_IMPVOL_{mny}%MNY_DF` fields `fetch_vol_timeseries` uses. Each cell is the last quote
+  on or before `value_date`. The default covers the five standard BVOL tenors
+  (`30d, 60d, 3m, 6m, 12m`) at nine moneyness points; pass further tenor dicts to widen it.
+
+## [2.2.0] - 2026-07-24
+
+### Added
+- New module `bbg_fetch.option_chain` (re-exported from the package top level) for option
+  chain retrieval and put-call parity recovery.
+- `fetch_option_chain()` returns a listed option chain for an underlying, one row per
+  option indexed by ticker over the `OPTION_CHAIN_FIELDS` set. Strikes are selected
+  either by `num_strikes_per_side` (a window around the ATM strike) or by an explicit
+  `strike_grid` (the listed strike nearest each target value is kept); selection happens
+  before the per-option `bdp`, bounding the hit count. `num_strikes_per_side=None` with
+  no `strike_grid` fetches the full chain. `expiry` is validated as a `YYYYMMDD` date,
+  so a malformed value raises instead of silently resolving to a different expiry.
+- `recover_option_forward()` recovers the implied forward and rate from put-call parity
+  (`C(K) - P(K) = exp(-r T)(F - K)`), returning `forward`, `rate`, `r2`,
+  `num_strikes_used`. The forward is well determined; the rate is only indicative at
+  short maturity (a 1e-3 error in the parity slope moves it by order 1%), so prefer a
+  money-market curve for the rate when precision matters.
+- `run()` fetches a chain and recovers the forward and rate in one call, inferring spot
+  and the year fraction from the chain (`opt_undl_px`, `opt_expire_dt`), and returns an
+  `OptionChainResult` snapshot.
+- `OptionPriceSource` enum (`MID`, `LAST`), the `OptionChainResult` dataclass with
+  `to_csv(path)` / `OptionChainResult.read_csv(path)` for a dependency-free single-file
+  round trip (scalars as a commented header, the chain below), and the
+  `OPTION_CHAIN_FIELDS` default field set.
+
 ## [2.0.3] - 2026-07-17
 
 ### Changed

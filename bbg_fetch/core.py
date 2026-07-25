@@ -561,6 +561,77 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
     return df
 
 
+def fetch_vol_surface(ticker: str = 'KOSPI2 Index',
+                      value_date: Optional[pd.Timestamp] = None,  # as-of date; None = latest available
+                      vol_fields: Sequence[Dict[str, str]] = (IMPVOL_FIELDS_MNY_30DAY,
+                                                              IMPVOL_FIELDS_MNY_60DAY,
+                                                              IMPVOL_FIELDS_MNY_3MTH,
+                                                              IMPVOL_FIELDS_MNY_6MTH,
+                                                              IMPVOL_FIELDS_MNY_12M),
+                      scaler: Optional[float] = 0.01,  # 0.01 -> decimals; None -> percent as on the terminal
+                      lookback_days: int = 10,  # calendar days back from value_date to find the last quote
+                      ) -> pd.DataFrame:
+    """
+    implied vol surface for one date, indexed by tenor with moneyness columns.
+
+    Reshapes the moneyness implied-vol fields (``{tenor}_IMPVOL_{mny}%MNY_DF``, the same fields
+    fetch_vol_timeseries uses) into the OVDV grid: rows are tenors, columns are moneyness in
+    percent. Each cell is the last available quote on or before value_date, looked back up to
+    lookback_days to skip non-trading days.
+
+    Parameters
+    ----------
+    ticker : str
+        Bloomberg ticker, e.g. ``'KOSPI2 Index'``.
+    value_date : pd.Timestamp, optional
+        As-of date. ``None`` uses the latest available quote.
+    vol_fields : sequence of dict
+        One dict per tenor, each mapping a Bloomberg field to a short label (``'30d97.5'``).
+        The default is the five standard BVOL tenors (``30d, 60d, 3m, 6m, 12m``) at nine
+        moneyness points. Widen the surface by passing further tenor dicts of verified fields.
+    scaler : float, optional
+        Multiply vols by this. ``0.01`` converts Bloomberg percent (``69.6``) to decimals
+        (``0.696``); ``None`` leaves the percent values shown on the terminal.
+    lookback_days : int
+        Calendar days looked back from value_date to find the last available quote.
+
+    Returns
+    -------
+    pd.DataFrame
+        Index = tenor labels in ``vol_fields`` order; columns = moneyness (percent, ascending);
+        values = implied vol. Empty DataFrame if no data falls in the window.
+
+    Raises
+    ------
+    ValueError
+        If a vol label does not encode a tenor and moneyness (``'30d97.5'``).
+    """
+    if value_date is None:
+        value_date = pd.Timestamp.now()
+    start_date = value_date - pd.Timedelta(days=lookback_days)
+
+    vols = fetch_vol_timeseries(ticker=ticker, vol_fields=list(vol_fields),
+                                start_date=start_date, add_underlying=False, scaler=scaler)
+    vols = vols.loc[vols.index <= value_date]
+    if vols.empty:
+        return pd.DataFrame()
+    snapshot = vols.ffill().iloc[-1]  # last available quote on/before value_date, per label
+
+    # each column label encodes tenor + moneyness: '30d97.5' -> ('30d', 97.5)
+    label_re = re.compile(r'^([0-9]+[a-z]+)([0-9.]+)$')
+    records = []
+    for label, value in snapshot.items():
+        match = label_re.match(str(label))
+        if match is None:
+            raise ValueError(f"cannot parse tenor/moneyness from vol label {label!r}")
+        records.append((match.group(1), float(match.group(2)), value))
+
+    surface = (pd.DataFrame(records, columns=['tenor', 'moneyness', 'vol'])
+               .pivot(index='tenor', columns='moneyness', values='vol'))
+    tenor_order = [label_re.match(next(iter(tenor_dict.values()))).group(1) for tenor_dict in vol_fields]
+    return surface.reindex(index=tenor_order, columns=sorted(surface.columns))
+
+
 def fetch_last_prices(tickers: Union[Sequence[str], Dict[str, str]] = FX_DICT) -> pd.Series:
     """
     fetch last prices of instruments in tickers

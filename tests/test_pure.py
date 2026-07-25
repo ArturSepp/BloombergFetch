@@ -11,7 +11,7 @@ from bbg_fetch._blp_api import _as_list, _normalize_name
 
 
 def test_version():
-    assert bbg_fetch.__version__ == "2.0.1"
+    assert bbg_fetch.__version__ == "2.3.0"
 
 
 def test_contract_to_instrument():
@@ -53,3 +53,37 @@ def test_top_level_exports():
     ]
     for name in expected:
         assert hasattr(bbg_fetch, name), f"missing public export: {name}"
+
+
+def test_fetch_vol_surface(monkeypatch):
+    """the surface reshape: as-of row -> tenor rows x moneyness columns (bdh stubbed)."""
+    import numpy as np
+    import pandas as pd
+    import bbg_fetch.core as core
+
+    labels = ["30d90.0", "30d100.0", "60d90.0", "60d100.0"]
+    dates = pd.date_range("2026-07-20", periods=3, freq="D")
+    timeseries = pd.DataFrame(np.arange(10, 130, 10, dtype=float).reshape(3, 4),
+                              index=dates, columns=labels)  # rows 10.., 50.., 90..
+
+    def fake_fetch_vol_timeseries(ticker, vol_fields, start_date, add_underlying, scaler):
+        out = timeseries.copy()
+        return out if scaler is None else out * scaler
+
+    monkeypatch.setattr(core, "fetch_vol_timeseries", fake_fetch_vol_timeseries)
+    vol_fields = ({"F30_90": "30d90.0", "F30_100": "30d100.0"},
+                  {"F60_90": "60d90.0", "F60_100": "60d100.0"})
+
+    surface = bbg_fetch.fetch_vol_surface(ticker="KOSPI2 Index",
+                                          value_date=pd.Timestamp("2026-07-22"),
+                                          vol_fields=vol_fields, scaler=None)
+    assert list(surface.index) == ["30d", "60d"]          # tenor rows, vol_fields order
+    assert list(surface.columns) == [90.0, 100.0]         # moneyness, ascending
+    assert surface.loc["30d", 90.0] == 90.0               # last row (2026-07-22)
+    assert surface.loc["60d", 100.0] == 120.0
+
+    # value_date picks the last row on or before it
+    earlier = bbg_fetch.fetch_vol_surface(ticker="KOSPI2 Index",
+                                          value_date=pd.Timestamp("2026-07-21"),
+                                          vol_fields=vol_fields, scaler=None)
+    assert earlier.loc["30d", 90.0] == 50.0               # the 2026-07-21 row

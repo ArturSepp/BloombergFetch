@@ -236,7 +236,7 @@ prices = fetch_last_prices(
 ### Implied volatility surface
 
 ```python
-from bbg_fetch import (fetch_vol_timeseries, IMPVOL_FIELDS_DELTA,
+from bbg_fetch import (fetch_vol_timeseries, fetch_vol_surface, IMPVOL_FIELDS_DELTA,
                        IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
                        IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
                        IMPVOL_FIELDS_MNY_12M)
@@ -264,6 +264,43 @@ vol_30d = fetch_vol_timeseries(
     vol_fields=['30DAY_IMPVOL_100.0%MNY_DF', '30DAY_IMPVOL_90.0%MNY_DF'],
     start_date=pd.Timestamp('2020-01-01')
 )
+
+# Surface snapshot for one date: rows = tenor, columns = moneyness (percent)
+surface = fetch_vol_surface(ticker='SPX Index', value_date=pd.Timestamp('2026-07-24'),
+                            scaler=None)
+# 5 tenors (30d, 60d, 3m, 6m, 12m) x 9 moneyness (80-120); last quote on/before the date
+```
+
+### Option chains
+
+```python
+import numpy as np
+from bbg_fetch import (fetch_option_chain, recover_option_forward, run,
+                       OptionPriceSource, OptionChainResult)
+
+# One expiry, trimmed to a strike window around the money (bounds the per-option bdp count)
+chain = fetch_option_chain(underlying='KOSPI2 Index', expiry='20260910',
+                           num_strikes_per_side=20)
+
+# ... or choose strikes explicitly; the listed strike nearest each target is kept
+chain = fetch_option_chain(underlying='KOSPI2 Index', expiry='20260910',
+                           strike_grid=np.linspace(700, 1400, 15))
+
+# Implied forward from put-call parity: C(K) - P(K) = exp(-r T) (F - K)
+params = recover_option_forward(chain, spot=1055.58, year_fraction=48 / 365,
+                                price_source=OptionPriceSource.LAST)
+# params: forward, rate, r2, num_strikes_used
+# (the forward is well determined; the rate is only indicative at short maturity)
+
+# One call end to end: fetch the chain, infer spot and year fraction from it, recover
+# the forward and rate, and return an OptionChainResult snapshot
+result = run(underlying='KOSPI2 Index', expiry='20260910',
+             strike_grid=np.linspace(700, 1400, 15))
+result.forward, result.rate, result.spot, result.year_fraction
+
+# Persist the snapshot to one self-contained CSV and read it back
+result.to_csv('kospi2_20260910.csv')
+result = OptionChainResult.read_csv('kospi2_20260910.csv')
 ```
 
 ### Futures contract table with carry
@@ -455,7 +492,11 @@ disconnect()
 
 | Function | Description |
 | --- | --- |
-| `fetch_vol_timeseries()` | Implied vol surface with underlying + rates (supports list-of-dicts for multi-tenor) |
+| `fetch_vol_timeseries()` | Implied vol time series with underlying + rates (supports list-of-dicts for multi-tenor) |
+| `fetch_vol_surface()` | Implied vol surface for one date: tenor rows × moneyness columns |
+| `fetch_option_chain()` | Listed option chain for one expiry, trimmed to a strike window or explicit grid |
+| `recover_option_forward()` | Implied forward (and rate) from put-call parity |
+| `run()` | Fetch a chain and recover the forward/rate in one call → `OptionChainResult` |
 | `fetch_futures_contract_table()` | Contract specs, carry, timestamps |
 | `fetch_active_futures()` | Front + second month price series with retry logic |
 
@@ -597,6 +638,13 @@ Bootstrap pip first: `python -m ensurepip --upgrade`, then install.
 Use `.\` prefix for relative paths: `.\.venv\Scripts\python.exe`, not `.venv\Scripts\python.exe`.
 
 ---
+
+## What's new in v2.3.0
+
+- **`fetch_vol_surface()`** — implied vol surface for a single date as a DataFrame indexed by tenor with moneyness columns, reshaping the same `{tenor}_IMPVOL_{mny}%MNY_DF` fields as `fetch_vol_timeseries`. Each cell is the last quote on or before `value_date`.
+- **Option chains (`bbg_fetch.option_chain`)** — `fetch_option_chain()` returns a listed chain for one expiry, trimmed by `num_strikes_per_side` (ATM window) or an explicit `strike_grid` before the per-option `bdp`; `expiry` is validated as `YYYYMMDD`.
+- **`recover_option_forward()`** — implied forward and rate from put-call parity, `C(K) - P(K) = exp(-r T) (F - K)`. The forward is well determined; the rate is only indicative at short maturity.
+- **`run()` and `OptionChainResult`** — fetch a chain and recover the forward/rate in one call, inferring spot and year fraction from the chain. The result round-trips to one self-contained CSV via `to_csv()` / `OptionChainResult.read_csv()`.
 
 ## What's new in v2.0.1
 
