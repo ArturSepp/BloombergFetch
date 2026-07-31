@@ -64,6 +64,13 @@ Supported Python is >= 3.9; CI runs 3.12.
   Tests that need a live Bloomberg session go in `bbg_fetch/tests/`.
 - Line length is not enforced (`ruff` rules `E`, `F`, `W` with `E501` ignored) because
   existing code has many long field-name lines.
+- **Two invariants are enforced by ruff rather than written down**, both green on the package, so
+  a violation is always something you just introduced:
+  - `TID251` fails any import of `qis`, `optimalportfolios`, `factorlasso`, `trendfollowing` or
+    `privateassets`. `bbg-fetch` is a leaf with no stack dependencies in either direction: a
+    consumer imports this package, and this package imports nothing from the stack. Analytics on
+    fetched data belong in the consumer, not here.
+  - `ICN` pins `import numpy as np` and `import pandas as pd`.
 - Public functions return pandas objects with a `DatetimeIndex`; Bloomberg field names
   are passed through rather than renamed, so callers can match them to the terminal.
 - `blpapi` access is confined to `_blp_api.py`. Public API lives in `core.py`.

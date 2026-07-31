@@ -74,6 +74,26 @@ line-length = 100
 select = ["E", "F", "W"]
 extend-ignore = ["E501"]  # line length not enforced; existing code has many long lines
 
+# --- stack invariants as lint, not prose ---------------------------------------------------
+# TID251 bans an import outright, TID253 bans it only at module level, ICN pins the numpy and
+# pandas aliases. None belongs to the "I" (isort) family, so the import-grouping convention is
+# untouched. Verified green on the repository as it stands.
+extend-select = ["TID251", "ICN"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+# A1: bbg-fetch is a leaf. blpapi only, no stack dependencies in either direction.
+"qis".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+"optimalportfolios".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+"factorlasso".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+"trendfollowing".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+"privateassets".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+
+[tool.ruff.lint.flake8-import-conventions.aliases]
+# replaces ruff's default alias map, which also demands `matplotlib as mpl` everywhere. Only
+# numpy and pandas are house convention; matplotlib is legitimately both `mpl` and `plt` here.
+numpy = "np"
+pandas = "pd"
+
 [tool.ruff.lint.per-file-ignores]
 "bbg_fetch/__init__.py" = ["F401"]      # intentional re-exports
 "bbg_fetch/tests/*"     = ["F401", "F541"]  # dev-only integration scripts
