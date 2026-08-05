@@ -7,6 +7,22 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+- Every `axis=1` `pd.concat` in `bbg_fetch` states `sort=` explicitly, all three `sort=True`.
+  Each series here arrives from its own Bloomberg request with its own history, so these are
+  unions of differing DatetimeIndexes: pandas 2.2 sorted them whatever the argument said,
+  pandas 3.0 honours an explicit `sort=False`, and pandas 4 drops the implicit sort as well. An
+  unsorted price panel leaving this leaf reaches every package downstream, where it either
+  raises deep inside a pandas resample or forward-fills a later price onto an earlier date and
+  raises nothing. `fetch_vol_timeseries_per_ticker` (`core.py:522`), the rate join in
+  `core.py:549` and the frame assembly in `_blp_api.py:342` are the three sites; the third was
+  already followed by `sort_index()`.
+
+### Added
+- `tests/test_concat_sort_convention.py`: an `axis=1` `pd.concat` in `bbg_fetch` without an
+  explicit `sort=` fails the suite. The check reads the source with `ast` and imports nothing,
+  so it runs without a Bloomberg terminal.
+
 ## [2.3.0] - 2026-07-24
 
 ### Added

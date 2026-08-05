@@ -519,7 +519,7 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
                 df_part = df_part.rename(vf, axis=1)
             if df_part is not None:
                 frames.append(df_part)
-        df = pd.concat(frames, axis=1) if frames else pd.DataFrame()
+        df = pd.concat(frames, axis=1, sort=True) if frames else pd.DataFrame()
     elif isinstance(vol_fields, list):
         df = fetch_fields_timeseries_per_ticker(ticker=ticker,
                                                 fields=vol_fields,
@@ -546,7 +546,7 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
         if scaler is not None:
             rate_3m *= scaler
         rate_3m = rate_3m.rename({'PX_LAST': 'rf_rate'}, axis=1)
-        df = pd.concat([price, rate_3m, df], axis=1)
+        df = pd.concat([price, rate_3m, df], axis=1, sort=True)
 
         if add_forwards:
             if tenor_years is None:

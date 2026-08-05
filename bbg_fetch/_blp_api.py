@@ -339,7 +339,7 @@ def bdh(tickers: Union[str, Sequence[str]],
             )
             frames.append(empty)
 
-    result = pd.concat(frames, axis=1)
+    result = pd.concat(frames, axis=1, sort=True)
     result.index = pd.to_datetime(result.index)
     result = result.sort_index()
     return result
