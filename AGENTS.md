@@ -86,6 +86,59 @@ Supported Python is >= 3.9; CI runs 3.12.
   is licensed and must not enter the repository.
 - Do not hardcode tickers, field names, or entitlement assumptions into library code.
 
+<!-- ===== SHARED AGENT CORE (standalone variant) — begin =====
+     Generated from SHARED_AGENT_CORE.md in the maintainer's project knowledge. Do not hand-edit
+     between these markers — propose the change to the maintainer instead. Variants: builder
+     (qis) / consumer / standalone. Last synced 2026-08-08, agent core v1.2. -->
+
+## Dependency surface
+
+This package is a leaf: it imports nothing from the stack (see Conventions, `TID251`), and its
+runtime surface — numpy, pandas and `blpapi` — is a design constraint, not a preference. Ask
+before adding any dependency.
+
+**Never invent a symbol.** If a function, class, or keyword argument is not in the export
+surface of this package or of a dependency, it does not exist. Check in one line —
+`python -c "import bbg_fetch; print([n for n in dir(bbg_fetch) if not n.startswith('_')])"`
+— and say a symbol is missing rather than producing code that calls it.
+
+## Verification loop
+
+- Plan → patch → verify. Name the verification command and its result when proposing a patch.
+- A second pass is mandatory where a plausible patch can be numerically wrong and still run
+  clean. Verify against a reference computed a different way, and say which.
+- Prove a new test fails before trusting that it passes: reintroduce the defect, watch it fail,
+  restore.
+
+## Escalation and scope
+
+- Stop and propose before proceeding when a change would exceed roughly five files, alter a
+  public signature, or touch a numerical path.
+- Never change numerical results, random seeds, or computed values unless the change is the
+  request.
+- A public-signature change carries a `CHANGELOG.md` entry and a version bump in the same
+  change. Removing a keyword argument from a function taking `**kwargs` is a silent break — the
+  caller's keyword is swallowed and nothing raises. Treat it as breaking.
+- Do not refactor beyond the requested scope. Propose the wider change; do not perform it.
+
+## Concurrent sessions
+
+More than one agent or session may work on this checkout at the same time, so a file can change
+between your read of it and your write.
+
+- Re-read a file from disk immediately before editing it. Never write a file from an earlier
+  read: a whole-file write from a stale copy silently reverts another session's work.
+- Prefer minimal anchored edits over whole-file replacement. If the on-disk content is not what
+  you expected, stop and reconcile your change onto the current content rather than overwrite.
+
+## Roadmap execution
+
+Feature roadmaps live at the repository root as `ROADMAP_<feature>.md`. An execution request
+names the file and the stage. A stage is complete when its stated verification command passes;
+its out-of-scope list is binding.
+
+<!-- ===== SHARED AGENT CORE — end ===== -->
+
 ## Release checklist
 
 A release touches three version locations. All three must agree:
