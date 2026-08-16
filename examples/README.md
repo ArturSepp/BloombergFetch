@@ -31,6 +31,7 @@ entitlements. These are local diagnostics and are never run by CI.
 
 | Script | Purpose | How to select the request |
 |---|---|---|
+| `diagnose_terminal.py` | One scalar request with redacted status, dimensions, schema, and failure category | Pass `--ticker` and `--field` |
 | `fetch_core_data.py` | High-level price, reference, volatility, futures, fixed-income, and constituent fetchers | Set `local_test` in the `__main__` block |
 | `fetch_div_history.py` | Trailing dividend yield for one instrument | Edit `tickers` in `main()` |
 | `fetch_option_chain.py` | Option-chain fetch and put-call-parity recovery | Pass a current listed expiry with `--expiry YYYYMMDD` |
@@ -38,6 +39,8 @@ entitlements. These are local diagnostics and are never run by CI.
 For example:
 
 ```bash
+python examples/diagnose_terminal.py
+python examples/diagnose_terminal.py --ticker "IBM US Equity" --field "SECURITY_NAME"
 python examples/fetch_option_chain.py --expiry 20261231
 ```
 

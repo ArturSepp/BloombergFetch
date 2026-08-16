@@ -151,6 +151,18 @@ Authoritative runnable scripts are indexed in [`examples/README.md`](examples/RE
 index separates the terminal-free installation/API check from examples that require a running,
 entitled Bloomberg Terminal.
 
+Start with the same two root scripts used by the documentation:
+
+1. Run [`examples/quickstart_no_terminal.py`](examples/quickstart_no_terminal.py) to verify the
+   installed API against deterministic synthetic data. It does not test a Bloomberg connection.
+2. On an entitled Bloomberg machine, run
+   [`examples/diagnose_terminal.py`](examples/diagnose_terminal.py) to make one scalar request and
+   report only success state, dimensions, and schema. Select a different request with
+   ``--ticker`` and ``--field``.
+
+The first script is exercised against the built wheel from outside the checkout in CI. The live
+diagnostic is deliberately local-only and never runs in CI.
+
 ### Prices across tickers (with renaming)
 
 ```python

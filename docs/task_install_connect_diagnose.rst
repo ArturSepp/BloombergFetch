@@ -69,26 +69,29 @@ Run one redacted live diagnostic
 
 With Bloomberg Professional open and logged in, request one field for one
 publicly identifiable instrument. Record shape and schema, never returned
-values:
+values. The authoritative root script is
+`examples/diagnose_terminal.py
+<https://github.com/ArturSepp/BloombergFetch/blob/main/examples/diagnose_terminal.py>`_:
 
-.. code-block:: python
+.. code-block:: powershell
 
-   import bbg_fetch
+   python examples/diagnose_terminal.py
 
-   try:
-       frame = bbg_fetch.bdp("AAPL US Equity", "PX_LAST")
-       print({
-           "rows": len(frame.index),
-           "columns": frame.columns.to_list(),
-           "non_null": bool(frame.notna().any().any()),
-       })
-   finally:
-       bbg_fetch.disconnect()
+Choose another entitled security or scalar field without editing the script:
+
+.. code-block:: powershell
+
+   python examples/diagnose_terminal.py --ticker "IBM US Equity" --field "SECURITY_NAME"
 
 The expected contract is a one-row DataFrame indexed by the requested ticker
-with one normalized column, ``px_last``. The Boolean may be false when the
-identifier, field, or entitlement is unavailable; no licensed value needs to
-be printed.
+with one normalized column, ``px_last``. A successful run reports ``PASS``,
+the dimensions, the normalized column name, and the index metadata. No
+licensed value is printed. A no-data result is classified separately because
+an invalid identifier, invalid field, or missing entitlement can have the same
+observable shape.
+
+The script classifies import, session, timeout, no-data/field/security/
+entitlement, and unexpected failures; it always closes the shared session.
 
 Classify failures
 -----------------

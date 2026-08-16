@@ -1,5 +1,8 @@
 """NO TERMINAL: verify installation with a deterministic public-API workflow."""
 
+import platform
+from importlib.metadata import version
+
 import numpy as np
 import pandas as pd
 
@@ -40,7 +43,11 @@ def main() -> None:
     if not np.isclose(recovered["rate"], RATE, atol=1e-10):
         raise RuntimeError(f"unexpected rate: {recovered['rate']}")
 
-    print(f"bbg-fetch {bbg_fetch.__version__} installation/API check: PASS")
+    print("installation/API check: PASS")
+    print(
+        f"versions: python={platform.python_version()}; "
+        f"bbg-fetch={bbg_fetch.__version__}; blpapi={version('blpapi')}"
+    )
     print(
         f"synthetic forward={recovered['forward']:.2f}; "
         f"rate={recovered['rate']:.2%}; "

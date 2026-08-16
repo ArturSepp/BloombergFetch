@@ -20,4 +20,5 @@ def test_examples_stay_at_repository_root() -> None:
 
     assert (examples_root / "README.md").is_file()
     assert (examples_root / "quickstart_no_terminal.py").is_file()
+    assert (examples_root / "diagnose_terminal.py").is_file()
     assert not (REPOSITORY_ROOT / "src" / "bbg_fetch" / "examples").exists()

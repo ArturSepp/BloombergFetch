@@ -15,8 +15,8 @@ The authoritative first-success script lives at repository root in
 Expected evidence
 -----------------
 
-The script prints the installed ``bbg-fetch`` version, a deterministic
-synthetic forward and rate, the number of strikes used, and this explicit
+The script prints the Python, ``bbg-fetch``, and ``blpapi`` versions, a
+deterministic synthetic forward and rate, the number of strikes used, and this explicit
 boundary:
 
 .. code-block:: text

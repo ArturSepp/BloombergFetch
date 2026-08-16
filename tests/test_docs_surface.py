@@ -38,9 +38,19 @@ def test_required_documentation_pages_and_single_source_example_exist() -> None:
     assert "literalinclude:: ../examples/quickstart_no_terminal.py" in _read(
         "docs/first_success.rst"
     )
+    install_guide = _read("docs/task_install_connect_diagnose.rst")
+    assert "python examples/diagnose_terminal.py" in install_guide
+    assert "bbg_fetch.bdp(" not in install_guide
+    readme = _read("README.md")
+    for example in ("quickstart_no_terminal.py", "diagnose_terminal.py"):
+        assert f"examples/{example}" in readme
     assert 'html_baseurl = "https://artursepp.github.io/BloombergFetch/"' in _read(
         "docs/conf.py"
     )
+    workflow = _read(".github/workflows/ci.yml")
+    assert "python -m compileall -q examples" in workflow
+    assert "working-directory: ${{ runner.temp }}" in workflow
+    assert 'python "$GITHUB_WORKSPACE/examples/quickstart_no_terminal.py"' in workflow
     assert "docs = [" in _read("pyproject.toml")
     assert ":google-site-verification:" in _read("docs/index.rst")
 
@@ -118,7 +128,7 @@ def test_task_guide_python_blocks_compile() -> None:
             compile(textwrap.dedent(match.group("body")), f"docs/{name}.rst", "exec")
             compiled += 1
 
-    assert compiled == 7
+    assert compiled == 6
 
 
 def test_task_guides_are_in_the_primary_navigation() -> None:
