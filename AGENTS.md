@@ -38,13 +38,14 @@ sibling package, say so rather than reimplementing it here.
 ## Repository layout
 
 ```
-bbg_fetch/
-  core.py       public fetch functions returning DataFrames
-  _blp_api.py   direct blpapi session handling (private)
-  tests/        tests that require a Bloomberg connection
+src/bbg_fetch/
+  core.py         public fetch functions returning DataFrames
+  option_chain.py option-chain fetching and parity recovery
+  _blp_api.py     direct blpapi session handling (private)
+  tests/          tests that require a Bloomberg connection
 tests/
-  test_pure.py  tests that run without a terminal
-examples/       runnable examples
+  test_pure.py    tests that run without a terminal
+examples/         authoritative runnable examples at repository root
 ```
 
 ## Commands
@@ -53,15 +54,15 @@ examples/       runnable examples
 pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
 pip install -e ".[dev]"
 pytest tests/          # terminal-free tests only, as CI runs them
-ruff check .           # lint
+ruff check src/bbg_fetch tests examples  # lint
 ```
 
-Supported Python is >= 3.9; CI runs 3.12.
+Supported Python is >= 3.10; CI runs 3.12.
 
 ## Conventions
 
 - Terminal-free tests go in the top-level `tests/` directory and are named `test_*.py`.
-  Tests that need a live Bloomberg session go in `bbg_fetch/tests/`.
+  Tests that need a live Bloomberg session go in `src/bbg_fetch/tests/`.
 - Line length is not enforced (`ruff` rules `E`, `F`, `W` with `E501` ignored) because
   existing code has many long field-name lines.
 - **Two invariants are enforced by ruff rather than written down**, both green on the package, so
@@ -78,7 +79,7 @@ Supported Python is >= 3.9; CI runs 3.12.
 ## Constraints — do not do these
 
 - Do not mock `blpapi` to make terminal-dependent tests pass in CI. Tests that need a
-  session belong in `bbg_fetch/tests/` and are not run by CI by design.
+  session belong in `src/bbg_fetch/tests/` and are not run by CI by design.
 - Do not add streaming or subscription support: this package is request/response only.
 - Do not add runtime dependencies. Anything beyond numpy, pandas and `blpapi` needs a
   strong justification — `xbbg` was deliberately removed in favour of direct `blpapi`.

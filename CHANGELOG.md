@@ -7,6 +7,19 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- Migrated the import package from the repository root to `src/bbg_fetch/` while preserving the
+  `bbg_fetch` import name and public API. CI now builds and installs the wheel before running the
+  terminal-free suite, so repository-root import shadowing cannot hide packaging defects.
+- Established `examples/` at repository root as the authoritative example surface, with a
+  deterministic terminal-free installation check and clearly labelled live Bloomberg scripts.
+- Aligned the package description, README opening, Python/platform support, and citation metadata
+  on the current 2.3.0 request/response Desktop API identity. Installation guidance now points to
+  Bloomberg's current API Library instead of pinning a stale wheel-version range.
+- Added a Sphinx documentation foundation with installation, first-success, API, and
+  troubleshooting pages, warning/link checks in CI, and an opt-in GitHub Pages deployment
+  workflow. The package metadata will gain a Documentation URL only after the site is deployed.
+
 ### Fixed
 - Every `axis=1` `pd.concat` in `bbg_fetch` states `sort=` explicitly, all three `sort=True`.
   Each series here arrives from its own Bloomberg request with its own history, so these are

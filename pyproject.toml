@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bbg-fetch"
 version = "2.3.0"
-description = "Python functionality for getting different data from Bloomberg: prices, implied vols, fundamentals"
+description = "Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -29,9 +29,8 @@ classifiers = [
     "Intended Audience :: Financial and Insurance Industry",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -53,13 +52,20 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.4",
 ]
+docs = [
+    "sphinx>=7.2",
+]
 
 [project.urls]
 Homepage = "https://github.com/ArturSepp/BloombergFetch"
 Repository = "https://github.com/ArturSepp/BloombergFetch.git"
 Issues = "https://github.com/ArturSepp/BloombergFetch/issues"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["bbg_fetch*"]
 exclude = ["tests*", "docs*"]
 
@@ -95,8 +101,8 @@ numpy = "np"
 pandas = "pd"
 
 [tool.ruff.lint.per-file-ignores]
-"bbg_fetch/__init__.py" = ["F401"]      # intentional re-exports
-"bbg_fetch/tests/*"     = ["F401", "F541"]  # dev-only integration scripts
+"src/bbg_fetch/__init__.py" = ["F401"]      # intentional re-exports
+"src/bbg_fetch/tests/*"     = ["F401", "F541"]  # dev-only integration scripts
 
 [tool.coverage.run]
 source = ["bbg_fetch"]

@@ -41,7 +41,7 @@ EXCLUDED_PARTS: Tuple[str, ...] = ('examples', 'tests', 'notebooks', '_to_delete
 def _package_root() -> Optional[Path]:
     """return the bbg_fetch package directory, or None when running off an installed wheel"""
     for parent in Path(__file__).resolve().parents:
-        candidate = parent.joinpath('bbg_fetch')
+        candidate = parent.joinpath('src', 'bbg_fetch')
         if candidate.is_dir():
             return candidate
     return None

@@ -9,8 +9,8 @@ authors:
 repository-code: "https://github.com/ArturSepp/BloombergFetch"
 url: "https://pypi.org/project/bbg-fetch/"
 license: MIT
-version: 2.0.3
-date-released: "2026-07-17"
+version: 2.3.0
+date-released: "2026-07-24"
 keywords:
   - bloomberg-api
   - market-data

@@ -1,10 +1,15 @@
 # BloombergFetch (`bbg-fetch`)
 
-**Bloomberg data in DataFrames. No boilerplate.**
+`bbg-fetch`: Bloomberg Desktop API request/response data in pandas DataFrames for quantitative
+research.
 
-`bbg-fetch` gives you clean, production-ready functions for the Bloomberg data you actually need — prices, fundamentals, vol surfaces, futures curves, bond analytics, index constituents — without writing event loops or managing sessions.
+It wraps BDP-, BDH-, and BDS-style requests and selected research workflows. Live requests require
+a running Bloomberg Terminal, suitable entitlements, and Bloomberg's separately installed
+`blpapi`; streaming and intraday subscriptions are out of scope.
 
 ```python
+import pandas as pd
+
 from bbg_fetch import fetch_field_timeseries_per_tickers
 
 prices = fetch_field_timeseries_per_tickers(
@@ -25,7 +30,8 @@ prices = fetch_field_timeseries_per_tickers(
 
 ## Why bbg-fetch?
 
-Writing Bloomberg queries with `blpapi` directly means 40–60 lines of session management, request construction, event-loop iteration, and response parsing — for every single query. You end up writing the same boilerplate wrapper in every project.
+Direct `blpapi` use requires session setup, request construction, event handling, and response
+parsing. `bbg-fetch` centralises that request/response plumbing for repeated research workflows.
 
 **With blpapi:**
 
@@ -48,12 +54,14 @@ request.set('adjustmentNormal', True)
 request.set('adjustmentAbnormal', True)
 request.set('adjustmentSplit', True)
 session.sendRequest(request)
-# ... then 30 more lines to parse the event loop into a DataFrame
+# Consume response events and assemble a DataFrame.
 ```
 
 **With bbg-fetch:**
 
 ```python
+import pandas as pd
+
 from bbg_fetch import fetch_field_timeseries_per_tickers
 
 prices = fetch_field_timeseries_per_tickers(
@@ -63,9 +71,11 @@ prices = fetch_field_timeseries_per_tickers(
 )
 ```
 
-Same result. One line.
+The wrapper handles the session/request/response path and returns the result as a DataFrame.
 
-bbg-fetch wraps the three Bloomberg services that cover most quant workflows — BDP, BDH, BDS — into high-level functions that return clean DataFrames with proper column naming, corporate action adjustments, and index alignment. The full direct-blpapi shim lives in a single 400-line file (`_blp_api.py`) that you can read end to end.
+`bbg-fetch` wraps BDP, BDH, and BDS requests in high-level functions that return pandas objects
+with documented column naming, corporate-action flags, and index handling. The direct `blpapi`
+session implementation is isolated in the private `_blp_api.py` module.
 
 ---
 
@@ -80,7 +90,7 @@ bbg-fetch wraps the three Bloomberg services that cover most quant workflows —
 - **FX**: Currency rates and volatility
 - **Indices**: Constituent weights, ISIN-to-ticker resolution
 
-### Production-ready details
+### Request/response conveniences
 
 - Dict-based ticker renaming: `{'ES1 Index': 'SPX'}` → DataFrame columns named `SPX`
 - Automatic retry on Bloomberg connection flakes
@@ -101,15 +111,19 @@ It is request/response by design: no streaming subscriptions and no intraday tic
 ### 1. Install blpapi
 
 ```bash
-pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
+python -m pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple/ blpapi
 ```
 
-Pre-built wheels for Python 3.8–3.12 on Windows/macOS/Linux bundle the C++ SDK automatically.
+Bloomberg's current API Library provides bundled Python wheels for community-supported Python
+versions. The live Desktop API workflow documented here targets Windows; Bloomberg's Linux and
+macOS API distributions serve different Bloomberg server products rather than a local Professional
+Terminal. Check the [official API Library](https://professional.bloomberg.com/support/api-library/)
+for the current platform and release matrix.
 
 **Corporate proxy?** Download the `.whl` from `https://blpapi.bloomberg.com/repository/releases/python/simple/blpapi/` via browser, then:
 
 ```bash
-pip install /path/to/blpapi-3.24.6-cp312-cp312-win_amd64.whl
+python -m pip install /path/to/blpapi-wheel.whl
 ```
 
 ### 2. Install bbg-fetch
@@ -125,11 +139,16 @@ git clone https://github.com/ArturSepp/BloombergFetch.git
 pip install .
 ```
 
-**Requirements:** Python 3.9–3.12, Bloomberg Terminal running on the same machine.
+**Requirements:** Python 3.10+, with the Bloomberg Desktop API and an entitled Bloomberg Terminal
+session available on the same Windows machine for live requests.
 
 ---
 
 ## Examples
+
+Authoritative runnable scripts are indexed in [`examples/README.md`](examples/README.md). The
+index separates the terminal-free installation/API check from examples that require a running,
+entitled Bloomberg Terminal.
 
 ### Prices across tickers (with renaming)
 
@@ -582,7 +601,7 @@ Most price functions support Bloomberg's adjustment flags:
 
 ## Testing
 
-Integration tests live in `bbg_fetch/tests/integration_tests.py` and require an active Bloomberg Terminal connection. They are shipped with the package.
+Integration tests live in `src/bbg_fetch/tests/integration_tests.py` and require an active Bloomberg Terminal connection. They are shipped with the package.
 
 ```python
 from bbg_fetch.tests.integration_tests import run_local_test, LocalTests
@@ -602,13 +621,17 @@ Available tests: `FIELD_TIMESERIES_PER_TICKERS`, `FIELDS_TIMESERIES_PER_TICKER`,
 ## Package structure
 
 ```
-bbg_fetch/
-    __init__.py       # Public API
-    _blp_api.py       # Direct blpapi shim (bdp, bdh, bds) — single file, no third-party deps
-    core.py           # High-level fetch functions
-    tests/
-        integration_tests.py    # Tests requiring Bloomberg Terminal
-        bbg_adj_price_vs_tri.py # Adjusted-price vs total-return validation
+src/
+    bbg_fetch/
+        __init__.py       # Public API
+        _blp_api.py       # Direct blpapi shim (bdp, bdh, bds)
+        core.py           # High-level fetch functions
+        option_chain.py   # Option-chain fetching and parity recovery
+        tests/
+            integration_tests.py    # Tests requiring Bloomberg Terminal
+            bbg_adj_price_vs_tri.py # Adjusted-price vs total-return validation
+tests/                    # Terminal-free CI tests
+examples/                 # Authoritative runnable examples
 ```
 
 ## Troubleshooting
@@ -696,6 +719,6 @@ MIT. See [LICENSE.txt](LICENSE.txt).
   year = {2024},
   publisher = {GitHub},
   url = {https://github.com/ArturSepp/BloombergFetch},
-  version = {2.0.1}
+  version = {2.3.0}
 }
 ```

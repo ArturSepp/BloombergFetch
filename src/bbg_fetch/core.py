@@ -470,6 +470,7 @@ def fetch_vol_timeseries(ticker: str = 'SPX Index',
     Fetch implied vol time series with optional underlying data and forward prices.
 
     Supports three vol_fields input modes:
+
     - Single dict: one tenor, e.g. IMPVOL_FIELDS_DELTA
     - List of dicts: multi-tenor surface, e.g. [IMPVOL_FIELDS_MNY_30DAY, ..., IMPVOL_FIELDS_MNY_12M]
       Each dict is fetched as a separate Bloomberg call (avoids field-count limits).

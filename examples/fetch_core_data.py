@@ -1,5 +1,4 @@
-"""
-runnable examples for the core.py data fetchers.
+"""BLOOMBERG TERMINAL REQUIRED: runnable examples for the core data fetchers.
 
 Run on the Bloomberg machine. Pick a case and run: each calls one fetcher with
 representative arguments and prints the result. One case per fetcher, gated behind the
