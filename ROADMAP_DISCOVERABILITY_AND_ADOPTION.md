@@ -536,6 +536,8 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · U8 · main/cfa7bde + v3.0.0 · PASS · maintainer-authorized major release published to PyPI and GitHub; version/date metadata, two artifact hashes, CI, Pages, rendered PyPI README, fresh no-cache install, tag/release, canonical URLs, robots, sitemap, and nine priority pages passed direct inspection.
 
+2026-08-16 · U9 scheduling · main/2bb69f9 · PASS · task-attached heartbeat `bbg-fetch-30-60-90-adoption-checkpoints` created for 2026-09-15, 2026-10-15, and 2026-11-15 in Europe/Zurich; frozen report template created; observations and final recommendation remain pending.
+
 ## Definition of complete
 
 Implementation is complete when both mandatory M0 stages pass, selected U0-U8 stages pass, public
