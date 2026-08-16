@@ -3,8 +3,8 @@
 project = "bbg-fetch"
 author = "Artur Sepp"
 copyright = "2026, Artur Sepp"
-version = "2.3"
-release = "2.3.0"
+version = "3.0"
+release = "3.0.0"
 
 extensions = [
     "sphinx.ext.autodoc",

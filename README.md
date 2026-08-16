@@ -675,6 +675,19 @@ Use `.\` prefix for relative paths: `.\.venv\Scripts\python.exe`, not `.venv\Scr
 
 ---
 
+## What's new in v3.0.0
+
+- **Python 3.10+ and Windows Desktop API contract** — Python 3.9 support is removed, and package
+  metadata now matches the documented local Bloomberg Professional workflow.
+- **Reliable packaging** — the import package uses `src/bbg_fetch/`; CI builds and installs the
+  wheel before testing and runs the terminal-free quickstart outside the checkout.
+- **First-success scripts** — one deterministic installation/API check and one redacted local
+  Terminal diagnostic are authoritative under `examples/`.
+- **Hosted documentation** — installation, task guides, API inventory, troubleshooting, and a
+  dated neutral client comparison are published at the canonical documentation URL.
+- **Stable pandas joins** — all cross-request column concatenations explicitly preserve sorted
+  DatetimeIndexes across supported pandas versions.
+
 ## What's new in v2.3.0
 
 - **`fetch_vol_surface()`** — implied vol surface for a single date as a DataFrame indexed by tenor with moneyness columns, reshaping the same `{tenor}_IMPVOL_{mny}%MNY_DF` fields as `fetch_vol_timeseries`. Each cell is the last quote on or before `value_date`.
@@ -732,6 +745,6 @@ MIT. See [LICENSE.txt](LICENSE.txt).
   year = {2024},
   publisher = {GitHub},
   url = {https://github.com/ArturSepp/BloombergFetch},
-  version = {2.3.0}
+  version = {3.0.0}
 }
 ```

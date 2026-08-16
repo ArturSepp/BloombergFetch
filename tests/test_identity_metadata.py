@@ -45,10 +45,19 @@ def test_supported_python_and_platform_are_consistent() -> None:
 
 def test_release_metadata_and_first_snippet_are_current() -> None:
     """Keep citations current and the opening README example self-contained."""
+    pyproject = _read("pyproject.toml")
+    package_init = _read("src/bbg_fetch/__init__.py")
     citation = _read("CITATION.cff")
     readme = _read("README.md")
+    sphinx = _read("docs/conf.py")
+    changelog = _read("CHANGELOG.md")
 
-    assert "version: 2.3.0" in citation
-    assert 'date-released: "2026-07-24"' in citation
-    assert "version = {2.3.0}" in readme
+    assert 'version = "3.0.0"' in pyproject
+    assert '__version__ = "3.0.0"' in package_init
+    assert "version: 3.0.0" in citation
+    assert 'date-released: "2026-08-16"' in citation
+    assert "version = {3.0.0}" in readme
+    assert 'version = "3.0"' in sphinx
+    assert 'release = "3.0.0"' in sphinx
+    assert "## [Unreleased]\n\n## [3.0.0] - 2026-08-16" in changelog
     assert readme.index("import pandas as pd") < readme.index("pd.Timestamp")

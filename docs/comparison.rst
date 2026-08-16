@@ -6,8 +6,8 @@ Choosing a Bloomberg Python client
 
 Audit date: 2026-08-16.
 
-This page compares stable releases visible on the audit date: `bbg-fetch 2.3.0
-<https://pypi.org/project/bbg-fetch/2.3.0/>`_, `Bloomberg blpapi 3.26.7.1
+This page compares the `bbg-fetch 3.0.0 release
+<https://pypi.org/project/bbg-fetch/>`_ audited on this date with `Bloomberg blpapi 3.26.7.1
 <https://blpapi.bloomberg.com/repository/releases/python/simple/blpapi/>`_,
 `xbbg 1.4.6 <https://pypi.org/project/xbbg/1.4.6/>`_, and `blp 0.0.4
 <https://pypi.org/project/blp/0.0.4/>`_. Versions, interfaces, and maintenance
@@ -41,7 +41,7 @@ Side-by-side scope
    :widths: 14 21 21 22 22
 
    * - Dimension
-     - ``bbg-fetch 2.3.0``
+     - ``bbg-fetch 3.0.0``
      - direct ``blpapi 3.26.7.1``
      - ``xbbg 1.4.6``
      - ``blp 0.0.4``

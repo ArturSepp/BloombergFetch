@@ -147,7 +147,7 @@ def test_comparison_is_dated_neutral_and_primary_sourced() -> None:
     comparison = _read("docs/comparison.rst")
 
     assert "Audit date: 2026-08-16" in comparison
-    for version in ("bbg-fetch 2.3.0", "blpapi 3.26.7.1", "xbbg 1.4.6", "blp 0.0.4"):
+    for version in ("bbg-fetch 3.0.0", "blpapi 3.26.7.1", "xbbg 1.4.6", "blp 0.0.4"):
         assert version in comparison
     for primary_source in (
         "https://blpapi.bloomberg.com/repository/releases/python/simple/blpapi/",

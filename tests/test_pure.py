@@ -11,7 +11,7 @@ from bbg_fetch._blp_api import _as_list, _normalize_name
 
 
 def test_version():
-    assert bbg_fetch.__version__ == "2.3.0"
+    assert bbg_fetch.__version__ == "3.0.0"
 
 
 def test_contract_to_instrument():
