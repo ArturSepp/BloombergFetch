@@ -520,7 +520,9 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · U2 · main/uncommitted · PASS · canonical identity, Python/platform support, citation metadata, tests, Ruff, distributions, and wheel METADATA agree on 2.3.0.
 
-2026-08-16 · U3 · main/uncommitted · PASS-LOCAL · Sphinx HTML/linkcheck, export coverage, canonical metadata, robots, sitemap, and root-example inclusion pass locally; deployment audit awaits Gate A.
+2026-08-16 · U3 · main/f2a1a99 · PASS · CI and Pages deployment passed; five priority pages, robots, sitemap, canonical metadata, and links return successfully over public HTTPS.
+
+2026-08-16 · Gate A · main/f2a1a99 · PASS · GitHub About aligned; Search Console URL-prefix ownership verified persistently; sitemap submitted; priority pages inspected and correctly recorded as newly unknown to Google.
 
 ## Definition of complete
 
