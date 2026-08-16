@@ -530,6 +530,8 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · U6 · main/4657a6a · PASS · authoritative terminal-free and live scripts, built-wheel execution outside the checkout, example compilation, 36 tests, CI, Pages, public HTTPS checks, and a redacted live BDP diagnostic passed.
 
+2026-08-16 · Gate B/U7 · main/3935527 · SKIPPED · maintainer confirmed the default: a hosted notebook cannot access the local Bloomberg Desktop API, while the authoritative U6 scripts already cover honest terminal-free and entitled-machine checkpoints without duplication.
+
 ## Definition of complete
 
 Implementation is complete when both mandatory M0 stages pass, selected U0-U8 stages pass, public
