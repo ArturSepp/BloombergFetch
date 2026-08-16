@@ -21,6 +21,7 @@ prices = fetch_field_timeseries_per_tickers(
 ```
 
 [![PyPI](https://img.shields.io/pypi/v/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat-square)](https://artursepp.github.io/BloombergFetch/)
 [![Python](https://img.shields.io/pypi/pyversions/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
 [![License](https://img.shields.io/github/license/ArturSepp/BloombergFetch.svg?style=flat-square)](LICENSE.txt)
 [![Downloads](https://static.pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)

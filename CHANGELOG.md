@@ -17,8 +17,9 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   on the current 2.3.0 request/response Desktop API identity. Installation guidance now points to
   Bloomberg's current API Library instead of pinning a stale wheel-version range.
 - Added a Sphinx documentation foundation with installation, first-success, API, and
-  troubleshooting pages, warning/link checks in CI, and an opt-in GitHub Pages deployment
-  workflow. The package metadata will gain a Documentation URL only after the site is deployed.
+  troubleshooting pages, warning/link checks in CI, a GitHub Pages deployment workflow, and a
+  persistent Search Console verification tag. Repository metadata and the README now link to the
+  deployed canonical documentation root.
 
 ### Fixed
 - Every `axis=1` `pd.concat` in `bbg_fetch` states `sort=` explicitly, all three `sort=True`.

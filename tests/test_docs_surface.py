@@ -37,6 +37,7 @@ def test_required_documentation_pages_and_single_source_example_exist() -> None:
         "docs/conf.py"
     )
     assert "docs = [" in _read("pyproject.toml")
+    assert ":google-site-verification:" in _read("docs/index.rst")
 
 
 def test_sitemap_covers_the_canonical_priority_pages() -> None:
