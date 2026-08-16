@@ -524,6 +524,8 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · Gate A · main/f2a1a99 · PASS · GitHub About aligned; Search Console URL-prefix ownership verified persistently; sitemap submitted; priority pages inspected and correctly recorded as newly unknown to Google.
 
+2026-08-16 · U4 · main/052302b · PASS · three task guides, navigation/sitemap coverage, symbol/snippet checks, terminal-free example, strict docs/link builds, and redacted live workflow diagnostics passed.
+
 ## Definition of complete
 
 Implementation is complete when both mandatory M0 stages pass, selected U0-U8 stages pass, public
