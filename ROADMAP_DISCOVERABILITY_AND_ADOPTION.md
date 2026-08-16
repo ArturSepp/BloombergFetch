@@ -526,6 +526,8 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · U4 · main/052302b · PASS · three task guides, navigation/sitemap coverage, symbol/snippet checks, terminal-free example, strict docs/link builds, and redacted live workflow diagnostics passed.
 
+2026-08-16 · U5 · main/c49fa5c · PASS · dated neutral comparison published for blpapi, xbbg, blp, and bbg-fetch; primary-source claim audit, strict docs/link builds, CI, Pages, and public HTTPS checks passed.
+
 ## Definition of complete
 
 Implementation is complete when both mandatory M0 stages pass, selected U0-U8 stages pass, public
