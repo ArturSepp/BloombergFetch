@@ -13,6 +13,16 @@ Live requests require a running Bloomberg Terminal, suitable entitlements, and
 Bloomberg's separately installed ``blpapi``. Streaming and intraday
 subscriptions are outside this project's scope.
 
+Task guides
+-----------
+
+* :doc:`task_install_connect_diagnose` — install the two packages, establish the
+  local Desktop API boundary, and isolate failures without exposing data.
+* :doc:`task_request_data` — choose between high-level fetchers and
+  ``bdp``/``bdh``/``bds``, with their exact pandas output contracts.
+* :doc:`task_research_workflows` — use option, volatility, futures,
+  fixed-income, and index-constituent workflows within their stated limits.
+
 Start here
 ----------
 
@@ -40,6 +50,9 @@ Project links
    :caption: Documentation
 
    installation
+   task_install_connect_diagnose
+   task_request_data
+   task_research_workflows
    first_success
    api
    troubleshooting
