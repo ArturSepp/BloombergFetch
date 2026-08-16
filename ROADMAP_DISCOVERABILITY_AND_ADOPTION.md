@@ -532,6 +532,8 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · Gate B/U7 · main/3935527 · SKIPPED · maintainer confirmed the default: a hosted notebook cannot access the local Bloomberg Desktop API, while the authoritative U6 scripts already cover honest terminal-free and entitled-machine checkpoints without duplication.
 
+2026-08-16 · U8 · main/1123e46 · BLOCKED · Pages and GitHub trust surfaces pass, but immutable PyPI 2.3.0 metadata still advertises Python >=3.9, OS Independent, the former summary, and no Documentation URL; a maintainer-approved new version and release are required for alignment.
+
 ## Definition of complete
 
 Implementation is complete when both mandatory M0 stages pass, selected U0-U8 stages pass, public
