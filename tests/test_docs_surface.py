@@ -27,6 +27,7 @@ def test_required_documentation_pages_and_single_source_example_exist() -> None:
         "task_install_connect_diagnose.rst",
         "task_request_data.rst",
         "task_research_workflows.rst",
+        "comparison.rst",
         "api.rst",
         "troubleshooting.rst",
         "robots.txt",
@@ -58,6 +59,7 @@ def test_sitemap_covers_the_canonical_priority_pages() -> None:
         f"{base_url}task_install_connect_diagnose.html",
         f"{base_url}task_request_data.html",
         f"{base_url}task_research_workflows.html",
+        f"{base_url}comparison.html",
         f"{base_url}api.html",
         f"{base_url}troubleshooting.html",
     }
@@ -128,6 +130,30 @@ def test_task_guides_are_in_the_primary_navigation() -> None:
         "task_research_workflows",
     ):
         assert f"   {page}" in index
+
+
+def test_comparison_is_dated_neutral_and_primary_sourced() -> None:
+    """Keep the choice guide auditable and prevent an unqualified winner claim."""
+    comparison = _read("docs/comparison.rst")
+
+    assert "Audit date: 2026-08-16" in comparison
+    for version in ("bbg-fetch 2.3.0", "blpapi 3.26.7.1", "xbbg 1.4.6", "blp 0.0.4"):
+        assert version in comparison
+    for primary_source in (
+        "https://blpapi.bloomberg.com/repository/releases/python/simple/blpapi/",
+        "https://bloomberg.github.io/blpapi-docs/",
+        "https://github.com/xbbg-org/xbbg",
+        "https://pypi.org/project/xbbg/1.4.6/",
+        "https://github.com/matthewgilbert/blp",
+        "https://pypi.org/project/blp/0.0.4/",
+        "https://github.com/matthewgilbert/pdblp",
+    ):
+        assert primary_source in comparison
+
+    assert "No universal recommendation" in comparison
+    assert "no longer under active development" in comparison
+    assert "popularity" not in comparison.lower()
+    assert "   comparison" in _read("docs/index.rst")
 
 
 def test_ci_builds_and_link_checks_the_documentation() -> None:

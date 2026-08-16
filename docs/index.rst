@@ -23,6 +23,12 @@ Task guides
 * :doc:`task_research_workflows` — use option, volatility, futures,
   fixed-income, and index-constituent workflows within their stated limits.
 
+Choosing a client
+-----------------
+
+* :doc:`comparison` — a dated, source-linked comparison with direct Bloomberg
+  ``blpapi``, ``xbbg``, and ``blp``; each option has use cases it serves best.
+
 Start here
 ----------
 
@@ -53,6 +59,7 @@ Project links
    task_install_connect_diagnose
    task_request_data
    task_research_workflows
+   comparison
    first_success
    api
    troubleshooting
