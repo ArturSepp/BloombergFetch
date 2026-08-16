@@ -534,6 +534,8 @@ Use `PASS-LOCAL` only temporarily before a required deployment check, then repla
 
 2026-08-16 · U8 · main/1123e46 · BLOCKED · Pages and GitHub trust surfaces pass, but immutable PyPI 2.3.0 metadata still advertises Python >=3.9, OS Independent, the former summary, and no Documentation URL; a maintainer-approved new version and release are required for alignment.
 
+2026-08-16 · U8 · main/cfa7bde + v3.0.0 · PASS · maintainer-authorized major release published to PyPI and GitHub; version/date metadata, two artifact hashes, CI, Pages, rendered PyPI README, fresh no-cache install, tag/release, canonical URLs, robots, sitemap, and nine priority pages passed direct inspection.
+
 ## Definition of complete
 
 Implementation is complete when both mandatory M0 stages pass, selected U0-U8 stages pass, public
