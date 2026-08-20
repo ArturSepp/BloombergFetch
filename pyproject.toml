@@ -59,7 +59,7 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/ArturSepp/BloombergFetch"
 Repository = "https://github.com/ArturSepp/BloombergFetch.git"
-Documentation = "https://artursepp.github.io/BloombergFetch/"
+Documentation = "https://bloombergfetch.readthedocs.io"
 Issues = "https://github.com/ArturSepp/BloombergFetch/issues"
 
 [tool.setuptools]

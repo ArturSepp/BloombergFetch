@@ -1,5 +1,7 @@
 """Sphinx configuration for the bbg-fetch documentation."""
 
+import os
+
 project = "bbg-fetch"
 author = "Artur Sepp"
 copyright = "2026, Artur Sepp"
@@ -16,7 +18,10 @@ exclude_patterns = ["_build"]
 
 html_theme = "alabaster"
 html_title = "bbg-fetch documentation"
-html_baseurl = "https://artursepp.github.io/BloombergFetch/"
+html_baseurl = os.environ.get(
+    "READTHEDOCS_CANONICAL_URL",
+    "https://bloombergfetch.readthedocs.io/en/latest/",
+)
 html_show_sourcelink = True
 html_extra_path = ["robots.txt", "sitemap.xml"]
 
