@@ -26,6 +26,7 @@ html_show_sourcelink = True
 html_extra_path = ["robots.txt", "sitemap.xml"]
 
 autodoc_member_order = "bysource"
+autodoc_mock_imports = ["blpapi"]
 autodoc_typehints = "description"
 
 
