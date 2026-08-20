@@ -1,6 +1,6 @@
 .. meta::
    :description: Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research.
-   :google-site-verification: WJen7v3RzYStpnJNMjZL5X35cuWl__U-MBvZtgN65-g
+   :google-site-verification: cddUZk3Gsd1MySw42Rwuq_rMzUDcMNkJWekObx-QS9Y
 
 bbg-fetch
 =========
