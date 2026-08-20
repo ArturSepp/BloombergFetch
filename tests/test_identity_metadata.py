@@ -7,6 +7,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL_DESCRIPTION = (
     "Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 )
+DOCUMENTATION_URL = "https://bloombergfetch.readthedocs.io"
 
 
 def _read(relative_path: str) -> str:
@@ -25,8 +26,8 @@ def test_canonical_identity_is_consistent() -> None:
     assert "production-ready" not in readme.lower()
     assert "40–60 lines" not in readme
     assert "Same result. One line." not in readme
-    assert 'Documentation = "https://artursepp.github.io/BloombergFetch/"' in pyproject
-    assert "https://artursepp.github.io/BloombergFetch/" in readme
+    assert f'Documentation = "{DOCUMENTATION_URL}"' in pyproject
+    assert DOCUMENTATION_URL in readme
 
 
 def test_supported_python_and_platform_are_consistent() -> None:

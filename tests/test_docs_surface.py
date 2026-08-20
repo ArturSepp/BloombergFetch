@@ -1,8 +1,10 @@
 """Repository checks for the Sphinx documentation foundation."""
 
 import re
+import runpy
 import textwrap
 from pathlib import Path
+from types import SimpleNamespace
 from xml.etree import ElementTree
 
 import bbg_fetch
@@ -10,6 +12,7 @@ import bbg_fetch
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DOCS_ROOT = REPOSITORY_ROOT / "docs"
+CANONICAL_DOCS_URL = "https://bloombergfetch.readthedocs.io/en/latest/"
 
 
 def _read(relative_path: str) -> str:
@@ -17,7 +20,7 @@ def _read(relative_path: str) -> str:
     return (REPOSITORY_ROOT / relative_path).read_text(encoding="utf-8")
 
 
-def test_required_documentation_pages_and_single_source_example_exist() -> None:
+def test_required_documentation_pages_and_single_source_example_exist(monkeypatch) -> None:
     """Keep the minimal user journey and root example linkage intact."""
     required = {
         "conf.py",
@@ -44,9 +47,8 @@ def test_required_documentation_pages_and_single_source_example_exist() -> None:
     readme = _read("README.md")
     for example in ("quickstart_no_terminal.py", "diagnose_terminal.py"):
         assert f"examples/{example}" in readme
-    assert 'html_baseurl = "https://artursepp.github.io/BloombergFetch/"' in _read(
-        "docs/conf.py"
-    )
+    monkeypatch.delenv("READTHEDOCS_CANONICAL_URL", raising=False)
+    assert runpy.run_path(str(DOCS_ROOT / "conf.py"))["html_baseurl"] == CANONICAL_DOCS_URL
     workflow = _read(".github/workflows/ci.yml")
     assert "python -m compileall -q examples" in workflow
     assert "working-directory: ${{ runner.temp }}" in workflow
@@ -60,7 +62,7 @@ def test_sitemap_covers_the_canonical_priority_pages() -> None:
     namespace = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     root = ElementTree.fromstring(_read("docs/sitemap.xml"))
     urls = {node.text for node in root.findall("sitemap:url/sitemap:loc", namespace)}
-    base_url = "https://artursepp.github.io/BloombergFetch/"
+    base_url = CANONICAL_DOCS_URL
 
     assert urls == {
         base_url,
@@ -74,6 +76,25 @@ def test_sitemap_covers_the_canonical_priority_pages() -> None:
         f"{base_url}troubleshooting.html",
     }
     assert f"Sitemap: {base_url}sitemap.xml" in _read("docs/robots.txt")
+
+
+def test_sphinx_uses_readthedocs_canonical_override(monkeypatch) -> None:
+    """Use RTD's version URL and collapse index.html to the version root."""
+    canonical_url = "https://bloombergfetch.readthedocs.io/en/stable/"
+    monkeypatch.setenv("READTHEDOCS_CANONICAL_URL", canonical_url)
+    config = runpy.run_path(str(DOCS_ROOT / "conf.py"))
+    context = {"pageurl": f"{canonical_url}index.html"}
+
+    config["_use_root_canonical"](
+        SimpleNamespace(config=SimpleNamespace(html_baseurl=canonical_url)),
+        "index",
+        "page.html",
+        context,
+        None,
+    )
+
+    assert config["html_baseurl"] == canonical_url
+    assert context["pageurl"] == canonical_url
 
 
 def test_api_inventory_matches_the_observable_top_level_surface() -> None:
