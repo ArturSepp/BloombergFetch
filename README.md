@@ -1,5 +1,13 @@
 # BloombergFetch (`bbg-fetch`)
 
+[![PyPI](https://img.shields.io/pypi/v/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
+[![Python](https://img.shields.io/pypi/pyversions/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
+[![License](https://img.shields.io/github/license/ArturSepp/BloombergFetch.svg?style=flat-square)](LICENSE.txt)
+[![CI](https://github.com/ArturSepp/BloombergFetch/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArturSepp/BloombergFetch/actions/workflows/ci.yml)
+[![Docs](https://readthedocs.org/projects/bloombergfetch/badge/?version=latest)](https://bloombergfetch.readthedocs.io/en/latest/)
+[![Downloads](https://static.pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)
+[![Monthly](https://static.pepy.tech/badge/bbg-fetch/month)](https://pepy.tech/project/bbg-fetch)
+
 `bbg-fetch`: Bloomberg Desktop API request/response data in pandas DataFrames for quantitative
 research.
 
@@ -19,13 +27,6 @@ prices = fetch_field_timeseries_per_tickers(
 )
 # Returns a clean DataFrame with renamed columns, sorted index, split/div adjusted
 ```
-
-[![PyPI](https://img.shields.io/pypi/v/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
-[![Documentation](https://img.shields.io/badge/docs-Read%20the%20Docs-blue?style=flat-square)](https://bloombergfetch.readthedocs.io/en/latest/)
-[![Python](https://img.shields.io/pypi/pyversions/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
-[![License](https://img.shields.io/github/license/ArturSepp/BloombergFetch.svg?style=flat-square)](LICENSE.txt)
-[![Downloads](https://static.pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)
-[![Monthly](https://static.pepy.tech/badge/bbg-fetch/month)](https://pepy.tech/project/bbg-fetch)
 
 ---
 

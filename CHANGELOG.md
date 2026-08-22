@@ -7,6 +7,11 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Removed
+
+- Retired the development-only `dev` extra. Repository tests and lint now use the PEP 735
+  `test` and `lint` dependency groups; the user-facing `docs` extra is unchanged.
+
 ## [3.1.0] - 2026-08-22
 
 ### Changed

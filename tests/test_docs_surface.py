@@ -187,9 +187,9 @@ def test_comparison_is_dated_neutral_and_primary_sourced() -> None:
     assert "   comparison" in _read("docs/index.rst")
 
 
-def test_ci_builds_and_link_checks_the_documentation() -> None:
+def test_docs_workflow_builds_and_link_checks_the_documentation() -> None:
     """Keep warning and link checks in the pull-request gate."""
-    workflow = _read(".github/workflows/ci.yml")
+    workflow = _read(".github/workflows/docs.yml")
 
     assert "-b html docs docs/_build/html" in workflow
     assert "-b linkcheck docs docs/_build/linkcheck" in workflow

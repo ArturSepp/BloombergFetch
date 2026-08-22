@@ -1,0 +1,52 @@
+name: Feature request
+description: Propose a focused addition within BloombergFetch's request/response boundary.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: user_task
+    attributes:
+      label: User or research task
+      description: Describe the Bloomberg data task before proposing an API.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_gap
+    attributes:
+      label: Current limitation
+      description: Explain why the public API and documented workflows do not already handle it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include request fields, response shape, pandas conventions, error handling, and compatibility implications.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Request construction or session handling
+        - Response parsing or DataFrame assembly
+        - Option chains or parity recovery
+        - Documentation or deterministic example
+        - Packaging or developer tooling
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Project boundary
+      options:
+        - label: This does not require committed Bloomberg data, credentials, or terminal output.
+          required: true
+        - label: This does not add streaming support or expand the runtime dependency surface.
+          required: true
+        - label: The proposal does not hardcode entitlement or terminal-specific assumptions.
+          required: true

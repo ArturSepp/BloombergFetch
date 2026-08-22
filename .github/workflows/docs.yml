@@ -1,59 +1,85 @@
+# SHARED CI CORE v1.0 — T1 — synced 2026-08-22
 name: Documentation
+
+permissions:
+  contents: read
 
 on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/docs.yml"
-      - "docs/**"
-      - "examples/**"
-      - "src/bbg_fetch/**"
-      - "CHANGELOG.md"
-      - "CITATION.cff"
-      - "pyproject.toml"
-      - "README.md"
+      - .github/workflows/docs.yml
+      - docs/**
+      - examples/**
+      - src/bbg_fetch/**
+      - CHANGELOG.md
+      - CITATION.cff
+      - pyproject.toml
+      - README.md
+      - uv.lock
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/docs.yml
+      - docs/**
+      - examples/**
+      - src/bbg_fetch/**
+      - CHANGELOG.md
+      - CITATION.cff
+      - pyproject.toml
+      - README.md
+      - uv.lock
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  MPLBACKEND: Agg
 
 jobs:
-  build:
+  docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: pip
+    - name: Install uv and Python
+      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      with:
+        python-version: "3.12"
 
-      - name: Install Bloomberg Python API
-        run: pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
+    - name: Sync documentation environment
+      run: uv sync --locked --extra docs
 
-      - name: Install package and documentation tools
-        run: pip install ".[docs]"
+    - name: Install blpapi from Bloomberg's public index
+      run: uv pip install --python .venv --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
 
-      - name: Build documentation
-        run: python -m sphinx -W --keep-going -b html docs docs/_build/html
+    - name: Build HTML with warnings as errors
+      run: uv run --no-sync python -m sphinx -E -W --keep-going -b html docs docs/_build/html
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+    - name: Check documentation links
+      run: uv run --no-sync python -m sphinx -E -W -b linkcheck docs docs/_build/linkcheck
 
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: docs/_build/html
+    # P5 has not yet authorized retiring GitHub Pages. Preserve the existing deployment after
+    # the canonical build gate succeeds; these steps do not run on pull requests.
+    - name: Configure GitHub Pages
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+    - name: Upload GitHub Pages artifact
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+      with:
+        path: docs/_build/html
 
   deploy:
-    needs: build
+    needs: docs
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       pages: write
       id-token: write
@@ -61,6 +87,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

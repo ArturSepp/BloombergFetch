@@ -52,13 +52,13 @@ examples/         authoritative runnable examples at repository root
 ## Commands
 
 ```bash
-pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
-pip install -e ".[dev]"
-pytest tests/          # terminal-free tests only, as CI runs them
-ruff check src/bbg_fetch tests examples  # lint
+uv sync --locked --group test
+uv pip install --python .venv --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
+uv run --no-sync pytest                    # terminal-free tests only, as CI runs them
+uv run --locked --only-group lint ruff check src/bbg_fetch tests examples
 ```
 
-Supported Python is >= 3.10; CI runs 3.12.
+Supported Python is >= 3.10; CI runs Linux 3.10–3.14 plus Windows and macOS 3.12.
 
 ## Conventions
 

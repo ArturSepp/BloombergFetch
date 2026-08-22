@@ -47,13 +47,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "ruff>=0.4",
-]
 docs = [
     "sphinx>=7.2",
+]
+
+[dependency-groups]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+lint = [
+    "ruff==0.16.2",
 ]
 
 [project.urls]
@@ -64,6 +68,7 @@ Issues = "https://github.com/ArturSepp/BloombergFetch/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -71,6 +76,7 @@ include = ["bbg_fetch*"]
 exclude = [
     "tests*",
     "docs*",
+    "bbg_fetch.tests*",
     "bbg_fetch.run_local*",
     "bbg_fetch.*.run_local*",
     "bbg_fetch.*.*.run_local*",
@@ -89,9 +95,9 @@ select = ["E", "F", "W"]
 extend-ignore = ["E501"]  # line length not enforced; existing code has many long lines
 
 # --- stack invariants as lint, not prose ---------------------------------------------------
-# TID251 bans an import outright, TID253 bans it only at module level, ICN pins the numpy and
-# pandas aliases. None belongs to the "I" (isort) family, so the import-grouping convention is
-# untouched. Verified green on the repository as it stands.
+# TID251 bans an import outright and ICN pins the numpy and pandas aliases. Neither belongs to
+# the "I" (isort) family, so the import-grouping convention is untouched. Verified green on the
+# repository as it stands.
 extend-select = ["TID251", "ICN"]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
