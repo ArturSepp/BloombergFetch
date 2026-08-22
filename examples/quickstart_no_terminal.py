@@ -1,6 +1,7 @@
 """NO TERMINAL: verify installation with a deterministic public-API workflow."""
 
 import platform
+from enum import Enum
 from importlib.metadata import version
 
 import numpy as np
@@ -13,6 +14,12 @@ SPOT = 100.0
 FORWARD = 102.0
 RATE = 0.03
 YEAR_FRACTION = 0.25
+
+
+class Locals(Enum):
+    """Available terminal-free example workflows."""
+
+    QUICKSTART = 1
 
 
 def _synthetic_option_chain() -> pd.DataFrame:
@@ -29,8 +36,10 @@ def _synthetic_option_chain() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def main() -> None:
+def run_local(local: Locals) -> None:
     """Run the terminal-free installation and public-API check."""
+    if local != Locals.QUICKSTART:
+        raise NotImplementedError(f"unsupported local: {local}")
     recovered = bbg_fetch.recover_option_forward(
         option_chain=_synthetic_option_chain(),
         spot=SPOT,
@@ -57,4 +66,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run_local(local=Locals.QUICKSTART)

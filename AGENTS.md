@@ -42,7 +42,8 @@ src/bbg_fetch/
   core.py         public fetch functions returning DataFrames
   option_chain.py option-chain fetching and parity recovery
   _blp_api.py     direct blpapi session handling (private)
-  tests/          tests that require a Bloomberg connection
+  tests/          live-Bloomberg pytest modules (*_test.py)
+  run_local/      source-checkout development runners (*_run.py; no __init__.py)
 tests/
   test_pure.py    tests that run without a terminal
 examples/         authoritative runnable examples at repository root
@@ -62,7 +63,15 @@ Supported Python is >= 3.10; CI runs 3.12.
 ## Conventions
 
 - Terminal-free tests go in the top-level `tests/` directory and are named `test_*.py`.
-  Tests that need a live Bloomberg session go in `src/bbg_fetch/tests/`.
+  Tests that need a live Bloomberg session go in `src/bbg_fetch/tests/` and are named
+  `*_test.py`. Every pytest module collects tests and has no executable main guard.
+- Component development diagnostics live in `src/bbg_fetch/run_local/<subject>_run.py`, expose
+  `Locals` and `run_local(local=...)`, and are excluded from built distributions. The
+  `run_local` folder intentionally has no `__init__.py`; Python treats it as an implicit namespace
+  for explicit source-checkout execution with `python -m`.
+- Broader repository examples remain under `examples/` and use the same `Locals` /
+  `run_local(local=...)` dispatcher names. Production modules and public `__init__.py` files never
+  import `run_local`.
 - Line length is not enforced (`ruff` rules `E`, `F`, `W` with `E501` ignored) because
   existing code has many long field-name lines.
 - **Two invariants are enforced by ruff rather than written down**, both green on the package, so

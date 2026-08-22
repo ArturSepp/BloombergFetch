@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from collections.abc import Sequence
+from enum import Enum
 
 try:
     import bbg_fetch
@@ -19,6 +19,12 @@ except ModuleNotFoundError as error:
 
 DEFAULT_TICKER = "AAPL US Equity"
 DEFAULT_FIELD = "PX_LAST"
+
+
+class Locals(Enum):
+    """Available terminal-diagnostic workflows."""
+
+    TERMINAL_DIAGNOSTIC = 1
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -42,7 +48,7 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def _run_diagnostic(argv: Sequence[str] | None = None) -> int:
     """Run one live request and report only status, dimensions, and schema."""
     args = _parser().parse_args(argv)
     try:
@@ -84,5 +90,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
+def run_local(local: Locals) -> None:
+    """Run the selected terminal diagnostic and preserve its process status."""
+    if local != Locals.TERMINAL_DIAGNOSTIC:
+        raise NotImplementedError(f"unsupported local: {local}")
+    raise SystemExit(_run_diagnostic())
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    run_local(local=Locals.TERMINAL_DIAGNOSTIC)

@@ -5,8 +5,8 @@ import os
 project = "bbg-fetch"
 author = "Artur Sepp"
 copyright = "2026, Artur Sepp"
-version = "3.0"
-release = "3.0.0"
+version = "3.1"
+release = "3.1.0"
 
 extensions = [
     "sphinx.ext.autodoc",

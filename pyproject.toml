@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bbg-fetch"
-version = "3.0.0"
+version = "3.1.0"
 description = "Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 readme = "README.md"
 license = {text = "MIT"}
@@ -68,7 +68,14 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["bbg_fetch*"]
-exclude = ["tests*", "docs*"]
+exclude = [
+    "tests*",
+    "docs*",
+    "bbg_fetch.run_local*",
+    "bbg_fetch.*.run_local*",
+    "bbg_fetch.*.*.run_local*",
+    "bbg_fetch.*.*.*.run_local*",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -103,7 +110,7 @@ pandas = "pd"
 
 [tool.ruff.lint.per-file-ignores]
 "src/bbg_fetch/__init__.py" = ["F401"]      # intentional re-exports
-"src/bbg_fetch/tests/*"     = ["F401", "F541"]  # dev-only integration scripts
+"src/bbg_fetch/tests/*"     = ["F401", "F541"]  # live Bloomberg pytest modules
 
 [tool.coverage.run]
 source = ["bbg_fetch"]

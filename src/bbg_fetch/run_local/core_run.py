@@ -1,13 +1,4 @@
-"""
-Local integration tests for bbg_fetch.
-
-These are development/debugging tests that download real data from a Bloomberg
-terminal. Run from a machine with an active Bloomberg session.
-
-Usage:
-    from bbg_fetch.local_tests import run_local_test, LocalTests
-    run_local_test(LocalTests.FIELD_TIMESERIES_PER_TICKERS)
-"""
+"""Run live Bloomberg development diagnostics for the core request functions."""
 
 from datetime import date
 from enum import Enum
@@ -40,7 +31,9 @@ from bbg_fetch.core import (
 )
 
 
-class LocalTests(Enum):
+class Locals(Enum):
+    """Available live Bloomberg development diagnostics."""
+
     FIELD_TIMESERIES_PER_TICKERS = 1
     FIELDS_TIMESERIES_PER_TICKER = 2
     FUNDAMENTALS = 3
@@ -62,8 +55,8 @@ class LocalTests(Enum):
     FORWARD = 20
 
 
-def run_local_test(local_test: LocalTests) -> None:
-    """Run local tests for development and debugging purposes.
+def run_local(local: Locals) -> None:
+    """Run one live Bloomberg diagnostic for development and debugging.
 
     These are integration tests that download real data and generate reports.
     Use for quick verification during development.
@@ -73,7 +66,7 @@ def run_local_test(local_test: LocalTests) -> None:
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    if local_test == LocalTests.FIELD_TIMESERIES_PER_TICKERS:
+    if local == Locals.FIELD_TIMESERIES_PER_TICKERS:
         #df = fetch_field_timeseries_per_tickers(tickers=['ES1 Index', 'ES2 Index', 'ES3 Index'], field='PX_LAST',
         #                                        CshAdjNormal=False, CshAdjAbnormal=False, CapChg=False)
         # df = fetch_field_timeseries_per_tickers(tickers=['CGS1U5 CBGN Curncy', 'CGS1U5 DRSK Curncy', 'CGS1U5 BEST Curncy'], field='PX_LAST')
@@ -85,11 +78,11 @@ def run_local_test(local_test: LocalTests) -> None:
 
         print(df)
 
-    elif local_test == LocalTests.FIELDS_TIMESERIES_PER_TICKER:
+    elif local == Locals.FIELDS_TIMESERIES_PER_TICKER:
         df = fetch_fields_timeseries_per_ticker(ticker='ES1 Index', fields=['PX_LAST', 'FUT_DAYS_EXP'])
         print(df)
 
-    elif local_test == LocalTests.FUNDAMENTALS:
+    elif local == Locals.FUNDAMENTALS:
         # df = fetch_fundamentals(tickers=['AAPL US Equity', 'BAC US Equity'],
         #                        fields=['Security_Name', 'GICS_Sector_Name', 'CRNCY'])
         df = fetch_fundamentals(tickers=['HAHYIM2 HK Equity'],
@@ -97,15 +90,15 @@ def run_local_test(local_test: LocalTests) -> None:
                                         'fund_min_invest'])
         print(df)
 
-    elif local_test == LocalTests.ACTIVE_FUTURES:
+    elif local == Locals.ACTIVE_FUTURES:
         field_data = fetch_active_futures(generic_ticker='ES1 Index')
         print(field_data)
 
-    elif local_test == LocalTests.CONTRACT_TABLE:
+    elif local == Locals.CONTRACT_TABLE:
         df = fetch_futures_contract_table(ticker="NK1 Index")
         print(df)
 
-    elif local_test == LocalTests.IMPLIED_VOL_TIME_SERIES:
+    elif local == Locals.IMPLIED_VOL_TIME_SERIES:
         df = fetch_vol_timeseries(ticker='SPX Index',
                                   vol_fields=[IMPVOL_FIELDS_MNY_30DAY, IMPVOL_FIELDS_MNY_60DAY,
                                               IMPVOL_FIELDS_MNY_3MTH, IMPVOL_FIELDS_MNY_6MTH,
@@ -114,13 +107,12 @@ def run_local_test(local_test: LocalTests) -> None:
         # df = fetch_vol_timeseries(ticker='EURUSD Curncy', vol_fields=['1M_CALL_IMP_VOL_10DELTA_DFLT', '1M_PUT_IMP_VOL_10DELTA_DFLT'])
         print(df.columns)
         print(df)
-        df.to_excel('C://Users//artur//OneDrive//analytics//outputs//spx_implied_vols.xlsx')
 
-    elif local_test == LocalTests.LAST_PRICES:
+    elif local == Locals.LAST_PRICES:
         fx_prices = fetch_last_prices()
         print(fx_prices)
 
-    elif local_test == LocalTests.BOND_INFO:
+    elif local == Locals.BOND_INFO:
         # data = fetch_bonds_info()
         # print(data)
 
@@ -132,25 +124,25 @@ def run_local_test(local_test: LocalTests) -> None:
                                                                  'yas_bond_yld', 'yas_oas_sprd', 'yas_mod_dur'])
         print(data)
 
-    elif local_test == LocalTests.CDS_INFO:
+    elif local == Locals.CDS_INFO:
         data = fetch_cds_info()
         print(data)
 
-    elif local_test == LocalTests.BALANCE_DATA:
+    elif local == Locals.BALANCE_DATA:
         data = fetch_balance_data(tickers=['ABI BB Equity', 'T US Equity', 'JPM US Equity', 'BAC US Equity'])
         print(data)
 
-    elif local_test == LocalTests.TICKERS_FROM_ISIN:
+    elif local == Locals.TICKERS_FROM_ISIN:
         df = fetch_tickers_from_isins()
         print(df)
 
-    elif local_test == LocalTests.DIVIDEND:
+    elif local == Locals.DIVIDEND:
         this = fetch_dividend_history(ticker='TIP US Equity')
         print(this)
         _, _, divs_1y= fetch_div_yields(tickers=['AHYG SP Equity'])
         print(divs_1y)
 
-    elif local_test == LocalTests.BOND_MEMBERS:
+    elif local == Locals.BOND_MEMBERS:
         # members = fetch_index_members_weights(index='SPCPGN Index')
         # members = fetch_index_members_weights('I31415US Index', END_DATE_OVERRIDE='20200101')
         # members = fetch_index_members_weights(index='I00182US Index')
@@ -171,14 +163,14 @@ def run_local_test(local_test: LocalTests) -> None:
         print(df)
         df.to_clipboard()
 
-    elif local_test == LocalTests.INDEX_MEMBERS:
+    elif local == Locals.INDEX_MEMBERS:
         # members = fetch_index_members_weights(index='URTH US Equity')
         # members = fetch_index_members_weights(index='URTH US Equity')
         # members = fetch_index_members_weights(index='LG30TRUH Index')
         members = fetch_index_members_weights(index='SPX Index')
         print(members)
 
-    elif local_test == LocalTests.OPTION_CHAIN:
+    elif local == Locals.OPTION_CHAIN:
         df = bds('TSLA US Equity',
                  'CHAIN_TICKERS',
                  # CHAIN_EXP_DT_OVRD='20210917',
@@ -188,7 +180,7 @@ def run_local_test(local_test: LocalTests) -> None:
 
         print(df)
 
-    elif local_test == LocalTests.YIELD_CURVE:
+    elif local == Locals.YIELD_CURVE:
         YC_US = bds("YCGT0025 Index", "INDX_MEMBERS")
         print(YC_US)
         YC_US_VAL = bdp(YC_US['member_ticker_and_exchange_code'].tolist(),
@@ -199,7 +191,7 @@ def run_local_test(local_test: LocalTests) -> None:
 
         print(YC_US_VAL)
 
-    elif local_test == LocalTests.CHECK:
+    elif local == Locals.CHECK:
         #this = bds("LUACTRUU Index", "INDX_MEMBERS3")
         #members = bds("IBOXIG Index", 'INDX_MWEIGHT')
         #print(this)
@@ -209,7 +201,7 @@ def run_local_test(local_test: LocalTests) -> None:
         df = fetch_issuer_isins_from_bond_isins()
         print(df)
 
-    elif local_test == LocalTests.MEMBERS:
+    elif local == Locals.MEMBERS:
         index = 'H04064US Index'
         members = bds(index, 'INDX_MEMBERS3')  # , overrides=[('DISPLAY_ID_BB_GLOBAL_OVERRIDE', True)]
         print(members)
@@ -223,15 +215,9 @@ def run_local_test(local_test: LocalTests) -> None:
         print(members)
         print(df)
 
-    elif local_test == LocalTests.FORWARD:
+    elif local == Locals.FORWARD:
         pass
 
 
 if __name__ == '__main__':
-    pd.set_option('display.max_rows', 500)
-    pd.set_option('display.max_columns', 100)
-    pd.set_option('display.width', 200)
-    #for local_test in LocalTests:
-    #    print(local_test)
-    #    run_local_test(local_test=local_test)
-    run_local_test(local_test=LocalTests.INDEX_MEMBERS)
+    run_local(local=Locals.INDEX_MEMBERS)

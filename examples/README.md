@@ -2,7 +2,8 @@
 
 The scripts in this repository-root directory are the authoritative `bbg-fetch` examples. They
 use the package's public API and are deliberately kept outside `src/bbg_fetch/` so they are not
-installed as package modules.
+installed as package modules. Each script exposes `Locals` and `run_local(local=...)`; its main
+guard selects one explicit default workflow.
 
 Install Bloomberg's Python API and the package before running any script:
 
@@ -32,8 +33,8 @@ entitlements. These are local diagnostics and are never run by CI.
 | Script | Purpose | How to select the request |
 |---|---|---|
 | `diagnose_terminal.py` | One scalar request with redacted status, dimensions, schema, and failure category | Pass `--ticker` and `--field` |
-| `fetch_core_data.py` | High-level price, reference, volatility, futures, fixed-income, and constituent fetchers | Set `local_test` in the `__main__` block |
-| `fetch_div_history.py` | Trailing dividend yield for one instrument | Edit `tickers` in `main()` |
+| `fetch_core_data.py` | High-level price, reference, volatility, futures, fixed-income, and constituent fetchers | Select a `Locals` member in the `__main__` call |
+| `fetch_div_history.py` | Trailing dividend yield for one instrument | Edit `tickers` in `run_local()` |
 | `fetch_option_chain.py` | Option-chain fetch and put-call-parity recovery | Pass a current listed expiry with `--expiry YYYYMMDD` |
 
 For example:

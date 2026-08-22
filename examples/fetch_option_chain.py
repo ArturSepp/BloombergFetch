@@ -6,10 +6,17 @@ and returns an OptionChainResult. Pass a currently listed expiry on the command 
 """
 
 import argparse
+from enum import Enum
 
 import numpy as np
 
 from bbg_fetch import OptionPriceSource, run
+
+
+class Locals(Enum):
+    """Available option-chain example workflows."""
+
+    OPTION_CHAIN = 1
 
 
 def _parse_args() -> argparse.Namespace:
@@ -23,8 +30,10 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def run_local(local: Locals) -> None:
     """Run the entitled option-chain request selected on the command line."""
+    if local != Locals.OPTION_CHAIN:
+        raise NotImplementedError(f"unsupported local: {local}")
     args = _parse_args()
     strike_grid = np.linspace(args.strike_min, args.strike_max, args.num_strikes)
     result = run(
@@ -43,4 +52,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run_local(local=Locals.OPTION_CHAIN)

@@ -7,6 +7,17 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-08-22
+
+### Changed
+- Separated live automated pytest from component development diagnostics: the adjusted-price
+  assertions remain under `src/bbg_fetch/tests/*_test.py`, while interactive core and
+  adjusted-price diagnostics now live in source-only `run_local/*_run.py` modules.
+- Standardized development runners and repository examples on `Locals` and
+  `run_local(local=...)`; pytest modules no longer contain executable main guards.
+- Excluded the implicit-namespace `run_local` folder from wheels and source distributions; it
+  intentionally contains no `__init__.py`.
+
 ## [3.0.0] - 2026-08-16
 
 ### Changed

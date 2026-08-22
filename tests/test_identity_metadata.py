@@ -53,12 +53,12 @@ def test_release_metadata_and_first_snippet_are_current() -> None:
     sphinx = _read("docs/conf.py")
     changelog = _read("CHANGELOG.md")
 
-    assert 'version = "3.0.0"' in pyproject
-    assert '__version__ = "3.0.0"' in package_init
-    assert "version: 3.0.0" in citation
-    assert 'date-released: "2026-08-16"' in citation
-    assert "version = {3.0.0}" in readme
-    assert 'version = "3.0"' in sphinx
-    assert 'release = "3.0.0"' in sphinx
-    assert "## [Unreleased]\n\n## [3.0.0] - 2026-08-16" in changelog
+    assert 'version = "3.1.0"' in pyproject
+    assert '__version__ = "3.1.0"' in package_init
+    assert "version: 3.1.0" in citation
+    assert 'date-released: "2026-08-22"' in citation
+    assert "version = {3.1.0}" in readme
+    assert 'version = "3.1"' in sphinx
+    assert 'release = "3.1.0"' in sphinx
+    assert changelog.index("## [Unreleased]") < changelog.index("## [3.1.0] - 2026-08-22")
     assert readme.index("import pandas as pd") < readme.index("pd.Timestamp")

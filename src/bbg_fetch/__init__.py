@@ -1,4 +1,4 @@
-__version__ = "3.0.0"
+__version__ = "3.1.0"
 
 from bbg_fetch.core import (fetch_field_timeseries_per_tickers,
                              fetch_fields_timeseries_per_ticker,

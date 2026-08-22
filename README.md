@@ -614,20 +614,26 @@ Most price functions support Bloomberg's adjustment flags:
 
 ## Testing
 
-Integration tests live in `src/bbg_fetch/tests/integration_tests.py` and require an active Bloomberg Terminal connection. They are shipped with the package.
+Terminal-free automated tests live in `tests/test_*.py` and are the CI lane. The live adjusted-price
+pytest module lives in `src/bbg_fetch/tests/bbg_adj_price_vs_tri_test.py`; it requires an active
+Bloomberg Terminal and is invoked explicitly from a source checkout.
+
+Component development diagnostics are source-only runners under `src/bbg_fetch/run_local/`. They
+use implicit namespace-package discovery, so the folder contains no `__init__.py` and is excluded
+from wheels and source distributions.
 
 ```python
-from bbg_fetch.tests.integration_tests import run_local_test, LocalTests
+from bbg_fetch.run_local.core_run import Locals, run_local
 
-run_local_test(LocalTests.FIELD_TIMESERIES_PER_TICKERS)
-run_local_test(LocalTests.IMPLIED_VOL_TIME_SERIES)
-run_local_test(LocalTests.CONTRACT_TABLE)
-run_local_test(LocalTests.BOND_INFO)
-run_local_test(LocalTests.DIVIDEND)
-run_local_test(LocalTests.BOND_MEMBERS)
+run_local(local=Locals.FIELD_TIMESERIES_PER_TICKERS)
+run_local(local=Locals.IMPLIED_VOL_TIME_SERIES)
+run_local(local=Locals.CONTRACT_TABLE)
+run_local(local=Locals.BOND_INFO)
+run_local(local=Locals.DIVIDEND)
+run_local(local=Locals.BOND_MEMBERS)
 ```
 
-Available tests: `FIELD_TIMESERIES_PER_TICKERS`, `FIELDS_TIMESERIES_PER_TICKER`, `FUNDAMENTALS`, `ACTIVE_FUTURES`, `CONTRACT_TABLE`, `IMPLIED_VOL_TIME_SERIES`, `BOND_INFO`, `LAST_PRICES`, `CDS_INFO`, `BALANCE_DATA`, `TICKERS_FROM_ISIN`, `DIVIDEND`, `BOND_MEMBERS`, `INDEX_MEMBERS`, `OPTION_CHAIN`, `YIELD_CURVE`, `CHECK`, `MEMBERS`, `FORWARD`.
+Available core diagnostics: `FIELD_TIMESERIES_PER_TICKERS`, `FIELDS_TIMESERIES_PER_TICKER`, `FUNDAMENTALS`, `ACTIVE_FUTURES`, `CONTRACT_TABLE`, `IMPLIED_VOL_TIME_SERIES`, `BOND_INFO`, `LAST_PRICES`, `CDS_INFO`, `BALANCE_DATA`, `TICKERS_FROM_ISIN`, `DIVIDEND`, `BOND_MEMBERS`, `INDEX_MEMBERS`, `OPTION_CHAIN`, `YIELD_CURVE`, `CHECK`, `MEMBERS`, `FORWARD`.
 
 ---
 
@@ -640,9 +646,11 @@ src/
         _blp_api.py       # Direct blpapi shim (bdp, bdh, bds)
         core.py           # High-level fetch functions
         option_chain.py   # Option-chain fetching and parity recovery
+        run_local/        # Source-only development runners; implicit namespace
+            core_run.py
+            adj_price_vs_tri_run.py
         tests/
-            integration_tests.py    # Tests requiring Bloomberg Terminal
-            bbg_adj_price_vs_tri.py # Adjusted-price vs total-return validation
+            bbg_adj_price_vs_tri_test.py # Live adjusted-price pytest
 tests/                    # Terminal-free CI tests
 examples/                 # Authoritative runnable examples
 ```
@@ -745,6 +753,6 @@ MIT. See [LICENSE.txt](LICENSE.txt).
   year = {2024},
   publisher = {GitHub},
   url = {https://github.com/ArturSepp/BloombergFetch},
-  version = {3.0.0}
+  version = {3.1.0}
 }
 ```

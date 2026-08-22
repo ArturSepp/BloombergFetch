@@ -1,0 +1,4 @@
+prune src/bbg_fetch/run_local
+prune src/bbg_fetch/*/run_local
+prune src/bbg_fetch/*/*/run_local
+prune src/bbg_fetch/*/*/*/run_local
