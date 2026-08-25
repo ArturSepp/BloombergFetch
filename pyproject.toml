@@ -86,6 +86,7 @@ exclude = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra -q --tb=short"
+cache_dir = "~/.cache/bbg-fetch/pytest"
 
 [tool.ruff]
 line-length = 100
