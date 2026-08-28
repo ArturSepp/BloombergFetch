@@ -1,19 +1,20 @@
-# BloombergFetch (`bbg-fetch`)
+# bbg-fetch
 
-[![PyPI](https://img.shields.io/pypi/v/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
-[![Python](https://img.shields.io/pypi/pyversions/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
-[![License](https://img.shields.io/github/license/ArturSepp/BloombergFetch.svg?style=flat-square)](LICENSE.txt)
-[![CI](https://github.com/ArturSepp/BloombergFetch/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArturSepp/BloombergFetch/actions/workflows/ci.yml)
-[![Docs](https://readthedocs.org/projects/bloombergfetch/badge/?version=latest)](https://bloombergfetch.readthedocs.io/en/latest/)
-[![Downloads](https://static.pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)
-[![Monthly](https://static.pepy.tech/badge/bbg-fetch/month)](https://pepy.tech/project/bbg-fetch)
-
-`bbg-fetch`: Bloomberg Desktop API request/response data in pandas DataFrames for quantitative
-research.
+**Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research.**
 
 It wraps BDP-, BDH-, and BDS-style requests and selected research workflows. Live requests require
 a running Bloomberg Terminal, suitable entitlements, and Bloomberg's separately installed
 `blpapi`; streaming and intraday subscriptions are out of scope.
+
+**Install:** `pip install bbg-fetch` · **Import:** `bbg_fetch` · **Status:** Beta
+
+[![PyPI](https://img.shields.io/pypi/v/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
+[![Python](https://img.shields.io/pypi/pyversions/bbg-fetch?style=flat-square)](https://pypi.org/project/bbg-fetch/)
+[![CI](https://github.com/ArturSepp/BloombergFetch/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArturSepp/BloombergFetch/actions/workflows/ci.yml)
+[![Docs](https://readthedocs.org/projects/bloombergfetch/badge/?version=latest)](https://bloombergfetch.readthedocs.io/en/latest/)
+[![License](https://img.shields.io/github/license/ArturSepp/BloombergFetch.svg?style=flat-square)](LICENSE.txt)
+[![Downloads](https://static.pepy.tech/badge/bbg-fetch)](https://pepy.tech/project/bbg-fetch)
+[![Monthly](https://static.pepy.tech/badge/bbg-fetch/month)](https://pepy.tech/project/bbg-fetch)
 
 ```python
 import pandas as pd
@@ -30,7 +31,7 @@ prices = fetch_field_timeseries_per_tickers(
 
 ---
 
-## Why bbg-fetch?
+## Why bbg-fetch
 
 Direct `blpapi` use requires session setup, request construction, event handling, and response
 parsing. `bbg-fetch` centralises that request/response plumbing for repeated research workflows.
@@ -81,9 +82,9 @@ session implementation is isolated in the private `_blp_api.py` module.
 
 ---
 
-## What you get
+### Key differentiators
 
-### Multi-asset coverage
+#### Multi-asset coverage
 
 - **Equities**: Historical prices with split/dividend adjustments, fundamentals, dividend history
 - **Futures**: Contract tables with carry analysis, active contract series, roll handling
@@ -92,7 +93,7 @@ session implementation is isolated in the private `_blp_api.py` module.
 - **FX**: Currency rates and volatility
 - **Indices**: Constituent weights, ISIN-to-ticker resolution
 
-### Request/response conveniences
+#### Request/response conveniences
 
 - Dict-based ticker renaming: `{'ES1 Index': 'SPX'}` → DataFrame columns named `SPX`
 - Automatic retry on Bloomberg connection flakes
@@ -341,7 +342,7 @@ result = OptionChainResult.read_csv('kospi2_20260910.csv')
 ```python
 from bbg_fetch import fetch_futures_contract_table
 
-# Full contract table: prices, bid/ask, volume, OI, days to expiry, annualized carry
+# Full contract table: prices, bid/ask, volume, OI, days to expiry, annualised carry
 curve = fetch_futures_contract_table(ticker="ES1 Index")
 
 # Nikkei futures
@@ -664,7 +665,8 @@ Install from Bloomberg's package index — see Installation above.
 
 ### "UnboundLocalError: cannot access local variable 'toPy'"
 
-The C++ DLLs bundled with blpapi failed to load. Reinstall: `pip uninstall blpapi -y` then reinstall. If on Python 3.13+, downgrade to 3.12.
+The C++ DLLs bundled with `blpapi` failed to load. Reinstall with `pip uninstall blpapi -y`, then
+install again from Bloomberg's official package index so the wheel matches your Python version.
 
 ### Corporate proxy blocks Bloomberg's pip index
 
@@ -683,6 +685,15 @@ Bootstrap pip first: `python -m ensurepip --upgrade`, then install.
 Use `.\` prefix for relative paths: `.\.venv\Scripts\python.exe`, not `.venv\Scripts\python.exe`.
 
 ---
+
+## What's new in v3.1.0
+
+- **Live tests separated from diagnostics** — adjusted-price assertions stay under
+  `src/bbg_fetch/tests/*_test.py`, while interactive core and adjusted-price diagnostics live in
+  source-only `run_local/*_run.py` modules; pytest modules contain no executable main guards.
+- **Standardised development runners** — repository examples and development runners use `Locals`
+  and `run_local(local=...)`; the implicit-namespace `run_local` folder is excluded from wheels
+  and source distributions.
 
 ## What's new in v3.0.0
 
@@ -721,12 +732,13 @@ Use `.\` prefix for relative paths: `.\.venv\Scripts\python.exe`, not `.venv\Scr
 - **Direct `blpapi` interface** — bbg-fetch talks to blpapi via a single in-repo 400-line shim (`_blp_api.py`); no third-party Bloomberg wrapper required as a dependency
 - **`field` parameter** added to `fetch_index_members_weights()` — supports `INDX_MWEIGHT`, `INDX_MEMBERS`, `INDX_MEMBERS3`
 - **`bdp()`, `bdh()`, `bds()` exported** for direct low-level access
-- **Robust field name handling** — Bloomberg's inconsistent casing/spacing/hyphens normalized automatically
+- **Robust field name handling** — Bloomberg's inconsistent casing/spacing/hyphens normalised automatically
 - **Migration from v1.x:** all imports unchanged
 
 ## Ecosystem
 
-This package is part of an open-source Python stack for quantitative finance — full catalogue at [github.com/ArturSepp](https://github.com/ArturSepp):
+This package is part of Artur Sepp's open-source Python stack for quantitative finance. The
+[maintainer profile](https://github.com/ArturSepp) is the canonical ten-package catalogue.
 
 | Package | Purpose |
 |---|---|
@@ -734,12 +746,29 @@ This package is part of an open-source Python stack for quantitative finance —
 | [`optimalportfolios`](https://github.com/ArturSepp/OptimalPortfolios) | Portfolio construction and backtesting |
 | [`factorlasso`](https://github.com/ArturSepp/factorlasso) | Sparse factor models and factor covariance estimation |
 | [`bbg-fetch`](https://github.com/ArturSepp/BloombergFetch) *(this package)* | Bloomberg data fetching |
+| [`option-chain-analytics`](https://github.com/ArturSepp/OptionChainAnalytics) | Point-in-time option-chain normalisation, reconstruction, queries, and visualisation |
 | [`trendfollowing`](https://github.com/ArturSepp/TrendFollowingSystems) | Trend-following systems: closed-form theory and replication |
+| [`privateassets`](https://github.com/ArturSepp/privateassets) | Money-weighted multi-factor alpha from private-asset cash flows |
 | [`goal-based-allocation`](https://github.com/ArturSepp/GoalBasedAllocation) | Dynamic MV allocation under regime-switching jump-diffusions |
 | [`stochvolmodels`](https://github.com/ArturSepp/StochVolModels) | Stochastic volatility pricing analytics |
 | [`vanilla-option-pricers`](https://github.com/ArturSepp/VanillaOptionPricers) | Vectorised vanilla option pricers and implied volatility fitters |
 
-Dependency links within the stack: `optimalportfolios` builds on `qis` and `factorlasso`; `trendfollowing` builds on `qis`.
+`bbg-fetch` is a standalone data-access package. `option-chain-analytics` can use it through an
+optional Bloomberg provider; research data fetched here can also flow into `qis`, but neither
+workflow creates a runtime dependency for `bbg-fetch`.
+
+## Feedback & contributing
+
+- **Bug:** [open the bug-report form](https://github.com/ArturSepp/BloombergFetch/issues/new?template=bug_report.yml)
+  with the package/Python versions, platform, minimal request shape, expected result, and redacted
+  actual result. Never attach licensed Bloomberg responses or credentials.
+- **Feature:** [open the feature-request form](https://github.com/ArturSepp/BloombergFetch/issues/new?template=feature_request.yml)
+  with the field, provider, or normalisation workflow that is missing, your current workaround,
+  and the smallest useful API.
+- **Contribution:** read [`CONTRIBUTING.md`](CONTRIBUTING.md), then browse
+  [`good first issue`](https://github.com/ArturSepp/BloombergFetch/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
+  or [`help wanted`](https://github.com/ArturSepp/BloombergFetch/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22)
+  work.
 
 ## License
 
@@ -747,11 +776,13 @@ MIT. See [LICENSE.txt](LICENSE.txt).
 
 ## Citation
 
+A machine-readable citation is available in [`CITATION.cff`](CITATION.cff).
+
 ```bibtex
 @software{bloombergfetch,
   author = {Sepp, Artur},
   title = {{BloombergFetch}: A Python Package for Bloomberg Terminal Data Access},
-  year = {2024},
+  year = {2026},
   publisher = {GitHub},
   url = {https://github.com/ArturSepp/BloombergFetch},
   version = {3.1.0}
