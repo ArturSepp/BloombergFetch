@@ -7,6 +7,11 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+
+- Migrated licence metadata to the PEP 639 SPDX expression and declared `LICENSE.txt` as the
+  packaged licence file.
+
 ### Removed
 
 - Retired the development-only `dev` extra. Repository tests and lint now use the PEP 735

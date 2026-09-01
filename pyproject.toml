@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,8 @@ name = "bbg-fetch"
 version = "3.1.0"
 description = "Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE.txt"]
 authors = [
     {name = "Artur Sepp", email = "artursepp@gmail.com"},
 ]
@@ -28,7 +29,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Financial and Insurance Industry",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -62,9 +62,10 @@ lint = [
 
 [project.urls]
 Homepage = "https://github.com/ArturSepp/BloombergFetch"
-Repository = "https://github.com/ArturSepp/BloombergFetch.git"
+Repository = "https://github.com/ArturSepp/BloombergFetch"
 Documentation = "https://bloombergfetch.readthedocs.io"
 Issues = "https://github.com/ArturSepp/BloombergFetch/issues"
+Changelog = "https://github.com/ArturSepp/BloombergFetch/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -96,10 +97,10 @@ select = ["E", "F", "W"]
 extend-ignore = ["E501"]  # line length not enforced; existing code has many long lines
 
 # --- stack invariants as lint, not prose ---------------------------------------------------
-# TID251 bans an import outright and ICN pins the numpy and pandas aliases. Neither belongs to
-# the "I" (isort) family, so the import-grouping convention is untouched. Verified green on the
-# repository as it stands.
-extend-select = ["TID251", "ICN"]
+# TID251 bans an import outright, TID253 bans it only at module level, and ICN pins the numpy and
+# pandas aliases. None belongs to the "I" (isort) family, so the import-grouping convention is
+# untouched. Verified green on the repository as it stands.
+extend-select = ["TID251", "TID253", "ICN"]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 # A1: bbg-fetch is a leaf. blpapi only, no stack dependencies in either direction.
@@ -108,6 +109,13 @@ extend-select = ["TID251", "ICN"]
 "factorlasso".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
 "trendfollowing".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
 "privateassets".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+
+[tool.ruff.lint.flake8-tidy-imports]
+# A3: an optional extra is imported inside a function and guarded, never at module level, so a
+# core install keeps working. A module dedicated to a single optional backend is the documented
+# exception and is named in per-file-ignores below.
+banned-module-level-imports = ["yfinance", "pandas_datareader", "pybloqs", "plotly", "pyarrow",
+                               "psycopg2", "sqlalchemy"]
 
 [tool.ruff.lint.flake8-import-conventions.aliases]
 # replaces ruff's default alias map, which also demands `matplotlib as mpl` everywhere. Only
