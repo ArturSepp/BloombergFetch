@@ -16,8 +16,8 @@ root_doc = "index"
 source_suffix = ".rst"
 exclude_patterns = ["_build"]
 
-html_theme = "alabaster"
-html_title = "bbg-fetch documentation"
+html_theme = "furo"
+html_title = "bbg-fetch - Bloomberg data in pandas DataFrames"
 html_baseurl = os.environ.get(
     "READTHEDOCS_CANONICAL_URL",
     "https://bloombergfetch.readthedocs.io/en/latest/",

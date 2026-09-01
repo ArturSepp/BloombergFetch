@@ -49,6 +49,7 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
     "sphinx>=7.2",
+    "furo>=2024.8.6",
 ]
 
 [dependency-groups]
