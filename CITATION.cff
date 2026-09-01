@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata from this file."
 type: software
-title: "BloombergFetch: A Python Package for Bloomberg Terminal Data Access"
+title: "bbg-fetch: Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 authors:
   - family-names: Sepp
     given-names: Artur
