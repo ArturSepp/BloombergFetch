@@ -1,12 +1,20 @@
 """Sphinx configuration for the bbg-fetch documentation."""
 
 import os
+from pathlib import Path
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 metadata tests use the compatible parser.
+    import tomli as tomllib
 
 project = "bbg-fetch"
 author = "Artur Sepp"
 copyright = "2026, Artur Sepp"
-version = "3.1"
-release = "3.1.0"
+release = tomllib.loads(
+    (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+)["project"]["version"]
+version = ".".join(release.split(".")[:2])
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -23,7 +31,6 @@ html_baseurl = os.environ.get(
     "https://bloombergfetch.readthedocs.io/en/latest/",
 )
 html_show_sourcelink = True
-html_extra_path = ["robots.txt", "sitemap.xml"]
 
 autodoc_member_order = "bysource"
 autodoc_mock_imports = ["blpapi"]

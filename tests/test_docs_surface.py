@@ -5,7 +5,6 @@ import runpy
 import textwrap
 from pathlib import Path
 from types import SimpleNamespace
-from xml.etree import ElementTree
 
 import bbg_fetch
 
@@ -33,8 +32,6 @@ def test_required_documentation_pages_and_single_source_example_exist(monkeypatc
         "comparison.rst",
         "api.rst",
         "troubleshooting.rst",
-        "robots.txt",
-        "sitemap.xml",
     }
 
     assert required <= {path.name for path in DOCS_ROOT.iterdir() if path.is_file()}
@@ -57,25 +54,24 @@ def test_required_documentation_pages_and_single_source_example_exist(monkeypatc
     assert ":google-site-verification:" in _read("docs/index.rst")
 
 
-def test_sitemap_covers_the_canonical_priority_pages() -> None:
-    """Keep the small static sitemap aligned with the user-facing docs surface."""
-    namespace = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    root = ElementTree.fromstring(_read("docs/sitemap.xml"))
-    urls = {node.text for node in root.findall("sitemap:url/sitemap:loc", namespace)}
-    base_url = CANONICAL_DOCS_URL
-
-    assert urls == {
-        base_url,
-        f"{base_url}installation.html",
-        f"{base_url}first_success.html",
-        f"{base_url}task_install_connect_diagnose.html",
-        f"{base_url}task_request_data.html",
-        f"{base_url}task_research_workflows.html",
-        f"{base_url}comparison.html",
-        f"{base_url}api.html",
-        f"{base_url}troubleshooting.html",
-    }
-    assert f"Sitemap: {base_url}sitemap.xml" in _read("docs/robots.txt")
+def test_legacy_redirects_cover_the_canonical_priority_pages(tmp_path) -> None:
+    """Keep every priority page reachable after moving discovery to Read the Docs."""
+    source, output = tmp_path / "rendered", tmp_path / "redirects"
+    source.mkdir()
+    pages = {"index", "installation", "first_success", "task_install_connect_diagnose",
+             "task_request_data", "task_research_workflows", "comparison", "api", "troubleshooting"}
+    for page in pages:
+        assert (DOCS_ROOT / f"{page}.rst").is_file()
+        (source / f"{page}.html").write_text("Original page content", encoding="utf-8")
+    redirect = runpy.run_path(str(REPOSITORY_ROOT / ".github/scripts/build_docs_redirects.py"))
+    assert redirect["build_redirects"](source, output, CANONICAL_DOCS_URL, "/BloombergFetch/") == len(pages)
+    for page in pages:
+        target = CANONICAL_DOCS_URL if page == "index" else f"{CANONICAL_DOCS_URL}{page}.html"
+        document = (output / f"{page}.html").read_text(encoding="utf-8")
+        assert f'href="{target}"' in document
+        assert "noindex,follow" in document
+        assert "Original page content" not in document
+    assert "path: docs/_build/redirects" in _read(".github/workflows/docs.yml")
 
 
 def test_sphinx_uses_readthedocs_canonical_override(monkeypatch) -> None:

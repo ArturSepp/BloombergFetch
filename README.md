@@ -147,6 +147,19 @@ session available on the same Windows machine for live requests.
 
 ---
 
+## Five-minute quickstart
+
+After installing `blpapi` and `bbg-fetch`, run the deterministic example from a source checkout:
+
+```console
+python examples/quickstart_no_terminal.py
+```
+
+It checks the public API on a synthetic option chain and prints
+`Bloomberg connection: NOT TESTED`. It makes no live request and writes no data.
+See [first success without a Terminal](https://bloombergfetch.readthedocs.io/en/latest/first_success.html)
+for the complete script and expected evidence.
+
 ## Examples
 
 Authoritative runnable scripts are indexed in [`examples/README.md`](examples/README.md). The
@@ -686,54 +699,15 @@ Use `.\` prefix for relative paths: `.\.venv\Scripts\python.exe`, not `.venv\Scr
 
 ---
 
-## What's new in v3.1.0
+<a id="whats-new-in-v310"></a>
+<a id="whats-new-in-v300"></a>
+<a id="whats-new-in-v230"></a>
+<a id="whats-new-in-v201"></a>
+<a id="whats-new-in-v200"></a>
 
-- **Live tests separated from diagnostics** — adjusted-price assertions stay under
-  `src/bbg_fetch/tests/*_test.py`, while interactive core and adjusted-price diagnostics live in
-  source-only `run_local/*_run.py` modules; pytest modules contain no executable main guards.
-- **Standardised development runners** — repository examples and development runners use `Locals`
-  and `run_local(local=...)`; the implicit-namespace `run_local` folder is excluded from wheels
-  and source distributions.
+## Changelog
 
-## What's new in v3.0.0
-
-- **Python 3.10+ and Windows Desktop API contract** — Python 3.9 support is removed, and package
-  metadata now matches the documented local Bloomberg Professional workflow.
-- **Reliable packaging** — the import package uses `src/bbg_fetch/`; CI builds and installs the
-  wheel before testing and runs the terminal-free quickstart outside the checkout.
-- **First-success scripts** — one deterministic installation/API check and one redacted local
-  Terminal diagnostic are authoritative under `examples/`.
-- **Hosted documentation** — installation, task guides, API inventory, troubleshooting, and a
-  dated neutral client comparison are published at the canonical documentation URL.
-- **Stable pandas joins** — all cross-request column concatenations explicitly preserve sorted
-  DatetimeIndexes across supported pandas versions.
-
-## What's new in v2.3.0
-
-- **`fetch_vol_surface()`** — implied vol surface for a single date as a DataFrame indexed by tenor with moneyness columns, reshaping the same `{tenor}_IMPVOL_{mny}%MNY_DF` fields as `fetch_vol_timeseries`. Each cell is the last quote on or before `value_date`.
-- **Option chains (`bbg_fetch.option_chain`)** — `fetch_option_chain()` returns a listed chain for one expiry, trimmed by `num_strikes_per_side` (ATM window) or an explicit `strike_grid` before the per-option `bdp`; `expiry` is validated as `YYYYMMDD`.
-- **`recover_option_forward()`** — implied forward and rate from put-call parity, `C(K) - P(K) = exp(-r T) (F - K)`. The forward is well determined; the rate is only indicative at short maturity.
-- **`run()` and `OptionChainResult`** — fetch a chain and recover the forward/rate in one call, inferring spot and year fraction from the chain. The result round-trips to one self-contained CSV via `to_csv()` / `OptionChainResult.read_csv()`.
-
-## What's new in v2.0.1
-
-- **Fixed frozen `end_date` defaults.** `fetch_field_timeseries_per_tickers` and `fetch_fields_timeseries_per_ticker` evaluated `pd.Timestamp.now()` once at import time. Long-running processes now resolve the timestamp at call time.
-- **Fixed missing `sort_index` assignment** in `fetch_fields_timeseries_per_ticker`.
-- **Robust retry loop** in `fetch_active_futures` — `max_attempts` parameter, no more crashes when all attempts fail.
-- **Tighter exception handling** — replaced bare `except:` with specific exception types.
-- **`disconnect()` registered with `atexit`** for clean session teardown at interpreter exit.
-- **`_collect_responses` raises `TimeoutError`** instead of silently swallowing timeouts; partial messages collected so far are attached to the exception.
-- **Public constants exported from `bbg_fetch`** — `FX_DICT`, `IMPVOL_FIELDS_*`, `DEFAULT_START_DATE`, `VOLS_START_DATE`, `DEFAULT_TENOR_YEARS` are now importable from the top-level package.
-- **`bbg_fetch.__version__`** added.
-- **Mutable default arguments** (lists) replaced with tuples; signatures use `Sequence[str]` consistently.
-
-## What's new in v2.0.0
-
-- **Direct `blpapi` interface** — bbg-fetch talks to blpapi via a single in-repo 400-line shim (`_blp_api.py`); no third-party Bloomberg wrapper required as a dependency
-- **`field` parameter** added to `fetch_index_members_weights()` — supports `INDX_MWEIGHT`, `INDX_MEMBERS`, `INDX_MEMBERS3`
-- **`bdp()`, `bdh()`, `bds()` exported** for direct low-level access
-- **Robust field name handling** — Bloomberg's inconsistent casing/spacing/hyphens normalised automatically
-- **Migration from v1.x:** all imports unchanged
+See the [changelog](https://github.com/ArturSepp/BloombergFetch/blob/main/CHANGELOG.md) for release history and migration notes.
 
 ## Ecosystem
 
@@ -770,10 +744,6 @@ workflow creates a runtime dependency for `bbg-fetch`.
   or [`help wanted`](https://github.com/ArturSepp/BloombergFetch/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22)
   work.
 
-## License
-
-MIT. See [LICENSE.txt](LICENSE.txt).
-
 ## Citation
 
 A machine-readable citation is available in [`CITATION.cff`](CITATION.cff).
@@ -785,6 +755,10 @@ A machine-readable citation is available in [`CITATION.cff`](CITATION.cff).
   year = {2026},
   publisher = {GitHub},
   url = {https://github.com/ArturSepp/BloombergFetch},
-  version = {3.1.0}
+  version = {3.2.0}
 }
 ```
+
+## License
+
+MIT. See [LICENSE.txt](LICENSE.txt).

@@ -5,8 +5,7 @@
 bbg-fetch
 =========
 
-``bbg-fetch`` provides Bloomberg Desktop API request/response data in pandas
-DataFrames for quantitative research.
+Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research.
 
 It wraps BDP-, BDH-, and BDS-style requests and selected research workflows.
 Live requests require a running Bloomberg Terminal, suitable entitlements, and

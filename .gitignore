@@ -143,3 +143,7 @@ dmypy.json
 
 # Local agent roadmaps and reports
 agents/
+
+# Versioned GitHub automation helpers (Scripts/ above is for local environments).
+!/.github/scripts/
+!/.github/scripts/*.py

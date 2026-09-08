@@ -1,6 +1,9 @@
 """Repository-owned package identity and release-metadata checks."""
 
 from pathlib import Path
+from datetime import date
+import re
+import runpy
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -50,15 +53,30 @@ def test_release_metadata_and_first_snippet_are_current() -> None:
     package_init = _read("src/bbg_fetch/__init__.py")
     citation = _read("CITATION.cff")
     readme = _read("README.md")
-    sphinx = _read("docs/conf.py")
     changelog = _read("CHANGELOG.md")
 
-    assert 'version = "3.1.0"' in pyproject
-    assert '__version__ = "3.1.0"' in package_init
-    assert "version: 3.1.0" in citation
-    assert 'date-released: "2026-08-22"' in citation
-    assert "version = {3.1.0}" in readme
-    assert 'version = "3.1"' in sphinx
-    assert 'release = "3.1.0"' in sphinx
-    assert changelog.index("## [Unreleased]") < changelog.index("## [3.1.0] - 2026-08-22")
+    version = re.search(r'^version = "([^"]+)"$', pyproject, re.MULTILINE).group(1)
+    citation_version = re.search(r'^version:\s*([^\n]+)', citation, re.MULTILINE)
+    release_date = re.search(r'^date-released:\s*([^\n]+)', citation, re.MULTILINE)
+    assert citation_version.group(1).strip('"\'') == version
+    release_date = release_date.group(1).strip('"\'')
+    assert date.fromisoformat(release_date) <= date.today()
+    assert f'__version__ = "{version}"' in package_init
+    assert f"version = {{{version}}}" in readme
+    assert changelog.index("## [Unreleased]") < changelog.index(
+        f"## [{version}] - {release_date}"
+    )
     assert readme.index("import pandas as pd") < readme.index("pd.Timestamp")
+
+
+def test_documentation_version_follows_package_metadata() -> None:
+    """Execute the documentation configuration rather than pinning a release literal."""
+    try:
+        import tomllib
+    except ModuleNotFoundError:  # Python 3.10
+        import tomli as tomllib
+
+    project = tomllib.loads(_read("pyproject.toml"))["project"]
+    sphinx = runpy.run_path(str(REPOSITORY_ROOT / "docs/conf.py"))
+    assert sphinx["release"] == project["version"]
+    assert sphinx["version"] == ".".join(project["version"].split(".")[:2])

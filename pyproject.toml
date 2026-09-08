@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bbg-fetch"
-version = "3.1.0"
+version = "3.2.0"
 description = "Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 readme = "README.md"
 license = "MIT"
@@ -54,6 +54,7 @@ docs = [
 
 [dependency-groups]
 test = [
+    "tomli>=2.0.1; python_version < '3.11'",
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
 ]
@@ -110,6 +111,10 @@ extend-select = ["TID251", "TID253", "ICN"]
 "factorlasso".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
 "trendfollowing".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
 "privateassets".msg = "A1: bbg-fetch is a leaf with no stack dependencies."
+"goal_based_allocation".msg = "A1: bbg-fetch has no declared dependency on goal_based_allocation."
+"option_chain_analytics".msg = "A1: bbg-fetch has no declared dependency on option_chain_analytics."
+"stochvolmodels".msg = "A1: bbg-fetch has no declared dependency on stochvolmodels."
+"vanilla_option_pricers".msg = "A1: bbg-fetch has no declared dependency on vanilla_option_pricers."
 
 [tool.ruff.lint.flake8-tidy-imports]
 # A3: an optional extra is imported inside a function and guarded, never at module level, so a
