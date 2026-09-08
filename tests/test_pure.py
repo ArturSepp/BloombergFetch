@@ -6,12 +6,13 @@ input coercion, and the public import surface.
 """
 
 import bbg_fetch
+from importlib.metadata import version
 from bbg_fetch import contract_to_instrument, instrument_to_active_ticker
 from bbg_fetch._blp_api import _as_list, _normalize_name
 
 
 def test_version():
-    assert bbg_fetch.__version__ == "3.1.0"
+    assert bbg_fetch.__version__ == version("bbg-fetch")
 
 
 def test_contract_to_instrument():
