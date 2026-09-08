@@ -7,10 +7,26 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-09-08
+
+### Added
+
+- Added explicit stack dependency and optional-import boundary checks, including
+  isolated maintainer adapters, plus a fresh Python 3.10 lowest-direct dependency CI lane.
+
+- Added tag-driven PyPI Trusted Publishing with release-identity and distribution
+  validation; creating a GitHub Release remains optional.
+
 ### Changed
 
 - Migrated licence metadata to the PEP 639 SPDX expression and declared `LICENSE.txt` as the
   packaged licence file.
+
+- Aligned package summaries, software citations, README navigation, and documentation
+  landing pages with the canonical package identity and Read the Docs documentation.
+
+- Replaced the legacy GitHub Pages documentation build with redirects to Read the Docs
+  and consolidated README release history in this changelog.
 
 ### Removed
 
