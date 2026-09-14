@@ -142,7 +142,7 @@ dmypy.json
 .pyre/
 
 # Local agent roadmaps and reports
-agents/
+/agents/
 
 # Versioned GitHub automation helpers (Scripts/ above is for local environments).
 !/.github/scripts/

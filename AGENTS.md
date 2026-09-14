@@ -7,6 +7,10 @@
 - Never run plain `uv sync` or plain `uv run` from this checkout: uv otherwise creates `<repo>\.venv` even when uv was launched through a Python executable under `C:\Python`.
 - If a uv project operation is required, first set `UV_PROJECT_ENVIRONMENT=C:\Python\BloombergFetch312`; for pip-style operations prefer `uv pip ... --python C:\Python\BloombergFetch312\Scripts\python.exe`.
 - If any OneDrive-local environment already exists, do not use it; report it for removal.
+- Run standard portfolio tasks through
+  `& "$env:USERPROFILE\OneDrive\analytics\my_github\ArturSepp\scripts\repo_governance\Invoke-Repo.ps1" -Task verify`.
+  Use `-Task check` or `-Task test` for a narrower run. The launcher selects this repository's
+  external interpreter and routes generated state to C:.
 
 # AGENTS.md
 
@@ -116,7 +120,7 @@ Supported Python is >= 3.10; CI runs Linux 3.10–3.14 plus Windows and macOS 3.
 <!-- ===== SHARED AGENT CORE (standalone variant) — begin =====
      Generated from SHARED_AGENT_CORE.md in the maintainer's project knowledge. Do not hand-edit
      between these markers — propose the change to the maintainer instead. Variants: builder
-     (qis) / consumer / standalone. Last synced 2026-09-08, agent core v1.5 -->
+     (qis) / consumer / standalone. Last synced 2026-09-13, agent core v1.6 -->
 
 ## Dependency surface
 
@@ -158,11 +162,14 @@ between your read of it and your write.
 - Prefer minimal anchored edits over whole-file replacement. If the on-disk content is not what
   you expected, stop and reconcile your change onto the current content rather than overwrite.
 
-## Roadmap execution
+## Agent-generated artifacts
 
-Feature roadmaps live at the repository root as `ROADMAP_<feature>.md`. An execution request
-names the file and the stage. A stage is complete when its stated verification command passes;
-its out-of-scope list is binding.
+All agent-generated roadmaps, execution plans, audits, reports, handoffs, and other working
+outputs live under the repository-root `agents/` directory, which is local and ignored by Git.
+Never create `ROADMAP_*.md`, `Claude outputs/`, `Codex outputs/`, or similar agent-output
+artifacts at the repository root. Name feature roadmaps `agents/ROADMAP_<feature>.md`. An
+execution request names the file and stage. A stage is complete when its stated verification
+command passes; its out-of-scope list is binding.
 
 <!-- ===== SHARED AGENT CORE — end ===== -->
 
