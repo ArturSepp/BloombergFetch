@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0",
+  "repository": "BloombergFetch",
+  "package": "bbg_fetch",
+  "python_environment": "BloombergFetch312",
+  "lint_paths": [
+    "src/bbg_fetch/*.py",
+    "tests/*.py",
+    "examples/*.py"
+  ],
+  "preflight": [],
+  "docs": [
+    [
+      "-m",
+      "sphinx",
+      "-E",
+      "-W",
+      "--keep-going",
+      "-b",
+      "html",
+      "docs",
+      "{output}/html"
+    ]
+  ],
+  "tests": [
+    [
+      "-m",
+      "pytest",
+      "-o",
+      "cache_dir={output}/pytest"
+    ]
+  ],
+  "remote_only": [
+    "supported Python/OS matrix",
+    "clean core/extras environments",
+    "wheel and sdist",
+    "coverage gates",
+    "dependency floors and live compatibility",
+    "online link and security health"
+  ],
+  "required_jobs": [
+    "preflight",
+    "ci",
+    "docs"
+  ],
+  "workflow_inventory": {
+    "ci": {
+      "test": [
+        "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "Install uv and Python ${{ matrix.python-version }}",
+        "Sync the test environment",
+        "Install blpapi from Bloomberg's public index",
+        "Run terminal-free tests",
+        "Compile every example"
+      ],
+      "lint": [
+        "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "Install uv and Python",
+        "Check lint and stack invariants"
+      ],
+      "wheel": [
+        "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "Install uv and Python",
+        "Build the wheel from the source distribution",
+        "Assert distribution contents",
+        "Install the wheel into a clean environment",
+        "Exercise the installed wheel from outside the checkout"
+      ],
+      "stack-policy": [
+        "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d",
+        "Exercise policy regressions",
+        "Check stack imports and optional adapter isolation"
+      ],
+      "lowest-dependencies": [
+        "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d",
+        "Keep the test environment outside the checkout",
+        "Resolve a fresh lowest-direct test environment",
+        "Install the Bloomberg SDK for terminal-free checks",
+        "Record installed versions",
+        "Check optional dependencies stay outside package-root import",
+        "Test declared dependency floors without live provider credentials"
+      ]
+    },
+    "docs": {
+      "docs": [
+        "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "Install uv and Python",
+        "Sync documentation environment",
+        "Install blpapi from Bloomberg's public index",
+        "Verify redirect path and fragment handling",
+        "Build HTML with warnings as errors",
+        "Check documentation links",
+        "Build legacy documentation redirects",
+        "Configure GitHub Pages",
+        "Upload GitHub Pages artifact"
+      ],
+      "deploy": [
+        "Deploy to GitHub Pages"
+      ]
+    }
+  }
+}
