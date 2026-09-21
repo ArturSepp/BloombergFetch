@@ -1,5 +1,6 @@
 """Repository checks for the Sphinx documentation foundation."""
 
+import json
 import re
 import runpy
 import textwrap
@@ -58,13 +59,24 @@ def test_legacy_redirects_cover_the_canonical_priority_pages(tmp_path) -> None:
     """Keep every priority page reachable after moving discovery to Read the Docs."""
     source, output = tmp_path / "rendered", tmp_path / "redirects"
     source.mkdir()
-    pages = {"index", "installation", "first_success", "task_install_connect_diagnose",
-             "task_request_data", "task_research_workflows", "comparison", "api", "troubleshooting"}
+    pages = {
+        "index",
+        "installation",
+        "first_success",
+        "task_install_connect_diagnose",
+        "task_request_data",
+        "task_research_workflows",
+        "comparison",
+        "api",
+        "troubleshooting",
+    }
     for page in pages:
         assert (DOCS_ROOT / f"{page}.rst").is_file()
         (source / f"{page}.html").write_text("Original page content", encoding="utf-8")
     redirect = runpy.run_path(str(REPOSITORY_ROOT / ".github/scripts/build_docs_redirects.py"))
-    assert redirect["build_redirects"](source, output, CANONICAL_DOCS_URL, "/BloombergFetch/") == len(pages)
+    assert redirect["build_redirects"](
+        source, output, CANONICAL_DOCS_URL, "/BloombergFetch/"
+    ) == len(pages)
     for page in pages:
         target = CANONICAL_DOCS_URL if page == "index" else f"{CANONICAL_DOCS_URL}{page}.html"
         document = (output / f"{page}.html").read_text(encoding="utf-8")
@@ -184,8 +196,20 @@ def test_comparison_is_dated_neutral_and_primary_sourced() -> None:
 
 
 def test_docs_workflow_builds_and_link_checks_the_documentation() -> None:
-    """Keep warning and link checks in the pull-request gate."""
+    """Keep strict shared HTML builds and the separate link-health checks."""
     workflow = _read(".github/workflows/docs.yml")
 
-    assert "-b html docs docs/_build/html" in workflow
+    profile = json.loads(_read(".github/oss-checks.json"))
+    assert [
+        "-m",
+        "sphinx",
+        "-E",
+        "-W",
+        "--keep-going",
+        "-b",
+        "html",
+        "docs",
+        "{output}/html",
+    ] in profile["docs"]
+    assert "python .github/oss_checks.py docs --working-tree" in workflow
     assert "-b linkcheck docs docs/_build/linkcheck" in workflow
