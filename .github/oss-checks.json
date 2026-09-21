@@ -41,7 +41,8 @@
   "required_jobs": [
     "preflight",
     "ci",
-    "docs"
+    "docs",
+    "references"
   ],
   "workflow_inventory": {
     "ci": {
@@ -100,5 +101,15 @@
         "Deploy to GitHub Pages"
       ]
     }
-  }
+  },
+  "audit": false,
+  "consumers": [
+    {
+      "repository": "ArturSepp/OptionChainAnalytics",
+      "module": "option_chain_analytics",
+      "extra": "bloomberg",
+      "sdk": true,
+      "commit": "d6428227e3d56ac45492747e2ed96d37f6bc9266"
+    }
+  ]
 }
