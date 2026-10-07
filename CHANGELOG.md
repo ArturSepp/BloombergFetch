@@ -7,6 +7,15 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- Titled documentation pages other than the homepage `<page title> - bbg-fetch`
+  instead of ending every title with the full site title, which search results cut off.
+
+- Made documentation pages built for the `stable` version name their `latest` address as
+  canonical, so search engines no longer see each page twice. Numbered versions keep their own
+  address. No signature or computed value changes.
+
 ## [3.2.0] - 2026-09-08
 
 ### Added
