@@ -3,9 +3,13 @@
 import json
 import re
 import runpy
+import subprocess
+import sys
 import textwrap
 from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 import bbg_fetch
 
@@ -86,15 +90,25 @@ def test_legacy_redirects_cover_the_canonical_priority_pages(tmp_path) -> None:
     assert "path: docs/_build/redirects" in _read(".github/workflows/docs.yml")
 
 
-def test_sphinx_uses_readthedocs_canonical_override(monkeypatch) -> None:
-    """Use RTD's version URL and collapse index.html to the version root."""
-    canonical_url = "https://bloombergfetch.readthedocs.io/en/stable/"
-    monkeypatch.setenv("READTHEDOCS_CANONICAL_URL", canonical_url)
+@pytest.mark.parametrize(
+    ("service_url", "canonical_url"),
+    [
+        # stable and latest serve the same pages, so both name latest as canonical
+        ("https://bloombergfetch.readthedocs.io/en/stable/", CANONICAL_DOCS_URL),
+        (
+            "https://bloombergfetch.readthedocs.io/en/3.2.0/",
+            "https://bloombergfetch.readthedocs.io/en/3.2.0/",
+        ),
+    ],
+)
+def test_sphinx_uses_readthedocs_canonical_override(monkeypatch, service_url, canonical_url) -> None:
+    """Use RTD's version URL, with stable folded into latest, and collapse index.html to the root."""
+    monkeypatch.setenv("READTHEDOCS_CANONICAL_URL", service_url)
     config = runpy.run_path(str(DOCS_ROOT / "conf.py"))
     context = {"pageurl": f"{canonical_url}index.html"}
 
     config["_use_root_canonical"](
-        SimpleNamespace(config=SimpleNamespace(html_baseurl=canonical_url)),
+        SimpleNamespace(config=SimpleNamespace(html_baseurl=config["html_baseurl"])),
         "index",
         "page.html",
         context,
@@ -103,6 +117,49 @@ def test_sphinx_uses_readthedocs_canonical_override(monkeypatch) -> None:
 
     assert config["html_baseurl"] == canonical_url
     assert context["pageurl"] == canonical_url
+
+
+def test_built_pages_carry_short_titles(monkeypatch, tmp_path) -> None:
+    """Furo would end every page title with the full html_title, which search results cut off."""
+    for module in ("sphinx", "furo"):
+        pytest.importorskip(module)
+    monkeypatch.delenv("READTHEDOCS_CANONICAL_URL", raising=False)
+    config = runpy.run_path(str(DOCS_ROOT / "conf.py"))
+    templates = [str(DOCS_ROOT / path) for path in config.get("templates_path", [])]
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "conf.py").write_text(
+        "import runpy\n"
+        f"_site = runpy.run_path({str(DOCS_ROOT / 'conf.py')!r})\n"
+        "html_theme = 'furo'\n"
+        f"templates_path = {templates!r}\n"
+        "for _key in ('project', 'html_title', 'html_baseurl'):\n"
+        "    globals()[_key] = _site[_key]\n"
+        "setup = _site['setup']\n",
+        encoding="utf-8",
+    )
+    (source / "index.rst").write_text(
+        "Home\n====\n\n.. toctree::\n\n   troubleshooting\n", encoding="utf-8"
+    )
+    (source / "troubleshooting.rst").write_text(
+        "Troubleshooting\n===============\n\nText.\n", encoding="utf-8"
+    )
+    output = tmp_path / "html"
+    result = subprocess.run(
+        [sys.executable, "-m", "sphinx", "-W", "-q", "-b", "html", str(source), str(output)],
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    def titles(name: str) -> list:
+        """Return the title elements of a built page's head."""
+        head = (output / f"{name}.html").read_text(encoding="utf-8").split("</head>")[0]
+        return re.findall(r"<title>(.*?)</title>", head)
+
+    assert titles("index") == [config["html_title"]]
+    assert titles("troubleshooting") == ["Troubleshooting - bbg-fetch"]
 
 
 def test_api_inventory_matches_the_observable_top_level_surface() -> None:
