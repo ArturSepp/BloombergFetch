@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bbg-fetch"
-version = "3.2.0"
+version = "3.2.1"
 description = "Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research"
 readme = "README.md"
 license = "MIT"

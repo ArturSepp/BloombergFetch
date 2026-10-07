@@ -7,6 +7,8 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [3.2.1] - 2026-10-07
+
 ### Fixed
 
 - Titled documentation pages other than the homepage `<page title> - bbg-fetch`
