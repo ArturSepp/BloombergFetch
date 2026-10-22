@@ -1,5 +1,10 @@
 # Contributing to BloombergFetch
 
+*Author: [Artur Sepp](https://github.com/ArturSepp) / First recorded: [2026-08-22](https://github.com/ArturSepp/BloombergFetch/commit/c5c80a9097b3eef11fec36d4f4319deb7f5a2ea5)*
+
+Source: [BloombergFetch](https://github.com/ArturSepp/BloombergFetch).
+Software citation: [CITATION.cff](https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff).
+
 Thanks for your interest in `bbg-fetch`. The package is a small request/response wrapper around
 Bloomberg's Desktop API, so a narrow dependency surface and a clean separation between
 terminal-free checks and licensed-data diagnostics are part of its contract.
@@ -24,6 +29,51 @@ Use the bug-report template and include the `bbg-fetch` version, Python version,
 installation command, a minimal reproducer, and the full traceback. Replace licensed data with a
 small synthetic DataFrame wherever possible. If the failure requires a live terminal, describe the
 request shape and error without attaching proprietary responses.
+
+## Starter tasks
+
+These are bounded proposals, not assigned issues or confirmed defects. Recheck source and open
+work before agreeing one task. Use the existing [feature form](https://github.com/ArturSepp/BloombergFetch/issues/new?template=feature_request.yml),
+Area **Documentation or deterministic example**. Include the task ID, owner, exact paths, reproduction, acceptance and focused
+check under Proposed behavior; retain required boundary checkboxes. Use the bug form only for
+observed incorrect behaviour. Keep numerical code, public signatures, dependencies, fixtures and
+canonical examples unchanged for these documentation tasks.
+
+### BBG-1: clarify synthetic setup and output
+
+Owner: BloombergFetch. Edit only `docs/first_success.rst`. Acceptance: clarify one observed ambiguity while preserving the SDK prerequisite, synthetic forward/rate and NOT TESTED connection boundary.
+
+```console
+python examples/quickstart_no_terminal.py
+python -m pytest tests/test_docs_surface.py -q
+```
+
+### BBG-2: clarify parsing conventions
+
+Owner: BloombergFetch. Edit only `docs/task_request_data.rst`. Acceptance: clarify a field-name or pandas-shape ambiguity using existing public symbols; distinguish synthetic inputs from credentialed requests and attach no vendor response.
+
+```console
+python -m pytest tests/test_pure.py -k "normalize_name or as_list or contract_to_instrument" -q
+```
+
+### BBG-3: check live-access navigation
+
+Owner: BloombergFetch. Edit only `docs/first_success.rst`. Acceptance: clarify stable/main or the next live-access step while retaining the pinned source, SDK and entitlement boundaries; open no session.
+
+```console
+python -m pytest tests/test_docs_surface.py -k canonical -q
+```
+
+Run the package's existing strict HTML command after a documentation edit and inspect the
+changed passage. On the maintainer's OneDrive checkout, dot-source the shared
+`Enter-AgentRepo.ps1` first and use `C:\Python\BloombergFetch312\Scripts\python.exe`.
+Keep exports, caches, builds and run output on C. The `uv` setup below is for ordinary contributor
+checkouts outside OneDrive; never create `.venv` in the synchronized checkout.
+
+Follow the [shared review guidance](https://github.com/ArturSepp/ArturSepp/blob/main/docs/contributing_to_stack.md#review-attribution-and-automation-assisted-changes).
+Record the revision, actual versions, exact checks and skips, rendered review and material
+automation assistance. Preserve MIT licensing and attribution. Automated checks do not
+establish independent reader success. Review time and acceptance are not promised.
 
 ## Development setup
 

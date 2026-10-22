@@ -93,8 +93,9 @@ def test_legacy_redirects_cover_the_canonical_priority_pages(tmp_path) -> None:
 @pytest.mark.parametrize(
     ("service_url", "canonical_url"),
     [
-        # stable and latest serve the same pages, so both name latest as canonical
-        ("https://bloombergfetch.readthedocs.io/en/stable/", CANONICAL_DOCS_URL),
+        # Each source channel retains its own canonical URL.
+        ("https://bloombergfetch.readthedocs.io/en/stable/",
+         "https://bloombergfetch.readthedocs.io/en/stable/"),
         (
             "https://bloombergfetch.readthedocs.io/en/3.2.0/",
             "https://bloombergfetch.readthedocs.io/en/3.2.0/",
@@ -102,7 +103,7 @@ def test_legacy_redirects_cover_the_canonical_priority_pages(tmp_path) -> None:
     ],
 )
 def test_sphinx_uses_readthedocs_canonical_override(monkeypatch, service_url, canonical_url) -> None:
-    """Use RTD's version URL, with stable folded into latest, and collapse index.html to the root."""
+    """Preserve RTD's source channel and collapse index.html to the root."""
     monkeypatch.setenv("READTHEDOCS_CANONICAL_URL", service_url)
     config = runpy.run_path(str(DOCS_ROOT / "conf.py"))
     context = {"pageurl": f"{canonical_url}index.html"}
