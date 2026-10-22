@@ -420,7 +420,7 @@ A machine-readable citation is available in [`CITATION.cff`](CITATION.cff).
   year = {2026},
   publisher = {GitHub},
   url = {https://github.com/ArturSepp/BloombergFetch},
-  version = {3.2.1}
+  version = {3.2.2}
 }
 ```
 

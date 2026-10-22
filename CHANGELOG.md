@@ -7,6 +7,28 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [3.2.2] - 2026-10-22
+
+### Added
+
+- Documented a reproducible released quickstart with explicit Bloomberg SDK prerequisites,
+  pinned source, synthetic inputs, and a clear boundary between offline checks and live access.
+- Added bounded contributor starter tasks and verification guidance.
+
+### Changed
+
+- Preserved separate canonical URLs for stable and development documentation and included
+  the built package version in the documentation site title.
+- Revised README navigation and setup guidance; made the core-data example default to
+  last prices rather than a volatility surface.
+- Updated Ruff and GitHub Actions, keeping the package and shared-check Ruff pins aligned.
+
+### Fixed
+
+- Corrected the Bloomberg SDK index URL and replaced an unpublished contributor-guide link.
+- Updated the locked certifi dependency to 2026.10.19 to resolve PYSEC-2026-4320 in optional
+  dependency audits. Runtime dependency declarations and public API behavior are unchanged.
+
 ## [3.2.1] - 2026-10-07
 
 ### Fixed
