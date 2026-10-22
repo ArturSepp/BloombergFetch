@@ -70,7 +70,7 @@ changed passage. On the maintainer's OneDrive checkout, dot-source the shared
 Keep exports, caches, builds and run output on C. The `uv` setup below is for ordinary contributor
 checkouts outside OneDrive; never create `.venv` in the synchronized checkout.
 
-Follow the [shared review guidance](https://github.com/ArturSepp/ArturSepp/blob/main/docs/contributing_to_stack.md#review-attribution-and-automation-assisted-changes).
+Follow the [shared documentation verification guidance](https://github.com/ArturSepp/ArturSepp/blob/main/docs/documentation_standard.md).
 Record the revision, actual versions, exact checks and skips, rendered review and material
 automation assistance. Preserve MIT licensing and attribution. Automated checks do not
 establish independent reader success. Review time and acceptance are not promised.
@@ -84,7 +84,7 @@ the locked project environment:
 git clone https://github.com/ArturSepp/BloombergFetch.git
 cd BloombergFetch
 uv sync --locked --group test
-uv pip install --python .venv --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
+uv pip install --python .venv --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple/ blpapi
 uv run --no-sync pytest
 uv run --locked --only-group lint ruff check src/bbg_fetch tests examples
 ```
@@ -98,7 +98,7 @@ Build documentation with the same warning gate used in CI:
 
 ```bash
 uv sync --locked --extra docs
-uv pip install --python .venv --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi
+uv pip install --python .venv --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple/ blpapi
 uv run --no-sync python -m sphinx -E -W --keep-going -b html docs docs/_build/html
 uv run --no-sync python -m sphinx -E -W -b linkcheck docs docs/_build/linkcheck
 ```

@@ -23,7 +23,7 @@ folder outside OneDrive and other synchronized directories:
 .. code-block:: powershell
 
    python -m pip install "bbg-fetch==3.2.1"
-   python -m pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple blpapi==3.26.9.1
+   python -m pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple/ blpapi==3.26.9.1
    python -c "from importlib.metadata import version; import bbg_fetch as p; print(version('bbg-fetch')); print(version('blpapi')); print(p.__file__)"
    Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/ArturSepp/BloombergFetch/059f3e49ba6fc45db10107ca33a2e6e6921ac9eb/examples/quickstart_no_terminal.py' -OutFile quickstart_no_terminal.py
    python quickstart_no_terminal.py
