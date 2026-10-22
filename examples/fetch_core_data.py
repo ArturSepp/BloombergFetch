@@ -138,4 +138,4 @@ def run_local(local: Locals) -> None:
 
 
 if __name__ == '__main__':
-    run_local(local=Locals.VOL_SURFACE)
+    run_local(local=Locals.LAST_PRICES)
