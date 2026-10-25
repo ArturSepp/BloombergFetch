@@ -4,6 +4,12 @@
 Choosing a Bloomberg Python client
 ==================================
 
+Author: `Artur Sepp <https://github.com/ArturSepp>`_ / First recorded:
+`2026-08-16 <https://github.com/ArturSepp/BloombergFetch/commit/c49fa5c12c9bcbe2cfdf57996d05c1a129243e44>`_.
+
+Implemented in `bbg-fetch <https://github.com/ArturSepp/BloombergFetch>`_.
+Software citation: `CITATION.cff <https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff>`_.
+
 Audit date: 2026-08-16.
 
 This page compares the `bbg-fetch 3.0.0 release

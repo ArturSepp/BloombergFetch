@@ -1,5 +1,10 @@
 # Runnable examples
 
+*Author: [Artur Sepp](https://github.com/ArturSepp) / First recorded: [2026-08-16](https://github.com/ArturSepp/BloombergFetch/commit/0832b666ead0e2b695113beb98f3428f051ee150)*
+
+Implemented in [bbg-fetch](https://github.com/ArturSepp/BloombergFetch).
+Software citation: [CITATION.cff](https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff).
+
 The scripts in this repository-root directory are the authoritative `bbg-fetch` examples. They
 use the package's public API and are deliberately kept outside `src/bbg_fetch/` so they are not
 installed as package modules. Each script exposes `Locals` and `run_local(local=...)`; its main

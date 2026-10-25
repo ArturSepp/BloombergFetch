@@ -5,6 +5,12 @@
 bbg-fetch
 =========
 
+Author: `Artur Sepp <https://github.com/ArturSepp>`_ / First recorded:
+`2026-08-16 <https://github.com/ArturSepp/BloombergFetch/commit/0832b666ead0e2b695113beb98f3428f051ee150>`_.
+
+Implemented in `bbg-fetch <https://github.com/ArturSepp/BloombergFetch>`_.
+Software citation: `CITATION.cff <https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff>`_.
+
 Bloomberg Desktop API request/response data in pandas DataFrames for quantitative research.
 
 It wraps BDP-, BDH-, and BDS-style requests and selected research workflows.

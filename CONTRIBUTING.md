@@ -2,7 +2,7 @@
 
 *Author: [Artur Sepp](https://github.com/ArturSepp) / First recorded: [2026-08-22](https://github.com/ArturSepp/BloombergFetch/commit/c5c80a9097b3eef11fec36d4f4319deb7f5a2ea5)*
 
-Source: [BloombergFetch](https://github.com/ArturSepp/BloombergFetch).
+Implemented in [bbg-fetch](https://github.com/ArturSepp/BloombergFetch).
 Software citation: [CITATION.cff](https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff).
 
 Thanks for your interest in `bbg-fetch`. The package is a small request/response wrapper around

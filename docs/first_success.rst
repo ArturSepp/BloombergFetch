@@ -4,10 +4,10 @@
 First success without a Terminal
 ================================
 
-*Author:* `Artur Sepp <https://github.com/ArturSepp>`_ / First recorded:
+Author: `Artur Sepp <https://github.com/ArturSepp>`_ / First recorded:
 `2026-08-16 <https://github.com/ArturSepp/BloombergFetch/commit/0832b666ead0e2b695113beb98f3428f051ee150>`_.
 
-Source: `BloombergFetch <https://github.com/ArturSepp/BloombergFetch>`_.
+Implemented in `bbg-fetch <https://github.com/ArturSepp/BloombergFetch>`_.
 Software citation: `CITATION.cff <https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff>`_.
 
 Reproducible released workflow

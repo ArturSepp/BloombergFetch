@@ -4,6 +4,12 @@
 Specialised research workflows
 ==============================
 
+Author: `Artur Sepp <https://github.com/ArturSepp>`_ / First recorded:
+`2026-08-16 <https://github.com/ArturSepp/BloombergFetch/commit/052302be6891af03499d9e20c740c5921bebf457>`_.
+
+Implemented in `bbg-fetch <https://github.com/ArturSepp/BloombergFetch>`_.
+Software citation: `CITATION.cff <https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff>`_.
+
 The problem
 -----------
 

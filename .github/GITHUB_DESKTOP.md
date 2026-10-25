@@ -1,8 +1,8 @@
 # Committing with GitHub Desktop
 
-*Author: [Artur Sepp](https://github.com/ArturSepp)*
+*Author: [Artur Sepp](https://github.com/ArturSepp) / First recorded: [2026-09-21](https://github.com/ArturSepp/BloombergFetch/commit/3cdfac90c1033b85e5dd401e6f94b26b974c94e1)*
 
-Project: [bbg_fetch](https://github.com/ArturSepp/BloombergFetch).
+Implemented in [bbg-fetch](https://github.com/ArturSepp/BloombergFetch).
 Software citation: [CITATION.cff](https://github.com/ArturSepp/BloombergFetch/blob/main/CITATION.cff).
 
 Create a working branch, select the intended changes, and commit normally. The installed
