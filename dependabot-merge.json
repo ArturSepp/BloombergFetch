@@ -1,1 +1,1 @@
-{"notifications": {}, "repository": "ArturSepp/BloombergFetch", "schema_version": 1}
+{"notifications": {"b73234371c9e1ce04d883ae327e6db19c1c7dcca21ec85521a768f8cee575336": {"details": ["Optional extras (advisory): failure"], "head": "dfb35d75fc88537d526ad0625e8c0d9df5caa610", "kind": "failed", "phase": "posting", "pr": 22}}, "repository": "ArturSepp/BloombergFetch", "schema_version": 1}
