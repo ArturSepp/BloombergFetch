@@ -7,6 +7,12 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- `bdp`, `bdh` and `bds` now raise `RuntimeError` for Bloomberg request-level
+  errors such as daily capacity exhaustion, preserving partial-message evidence
+  instead of returning misleading empty or incomplete market-data tables.
+
 ## [3.2.2] - 2026-10-22
 
 ### Added

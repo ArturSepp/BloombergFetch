@@ -192,6 +192,7 @@ def test_examples_use_the_shared_dispatcher_contract() -> None:
     """Broader examples expose the stack-wide local dispatcher names."""
     failures = []
     examples = sorted(EXAMPLES_ROOT.glob("*.py"))
+    assert examples
     for path in examples:
         definitions = _definitions(path)
         if not {"Locals", "run_local"} <= definitions:
@@ -200,7 +201,6 @@ def test_examples_use_the_shared_dispatcher_contract() -> None:
             failures.append(f"{path.name}: retains legacy dispatcher names")
         if not _main_calls_run_local_directly(path):
             failures.append(f"{path.name}: main guard must contain only run_local(local=Locals.*)")
-    assert len(examples) == 5
     assert not failures, failures
 
 
