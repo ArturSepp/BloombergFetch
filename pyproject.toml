@@ -91,6 +91,7 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]  # Allow example imports even when testing the installed wheel from outside the checkout.
 addopts = "-ra -q --tb=short"
 cache_dir = "~/.cache/bbg-fetch/pytest"
 

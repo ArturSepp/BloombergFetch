@@ -138,6 +138,10 @@ def _collect_responses(session: blpapi.Session,
 
     Raises
     ------
+    RuntimeError
+        If Bloomberg returns a request-level responseError, including capacity
+        or authorization failures. Partial payloads are attached for diagnosis
+        and are not returned as successful market data.
     TimeoutError
         If the event loop times out before a final RESPONSE event arrives.
         Any partial messages collected so far are attached to the exception
@@ -150,6 +154,12 @@ def _collect_responses(session: blpapi.Session,
 
         if ev_type in (blpapi.Event.PARTIAL_RESPONSE, blpapi.Event.RESPONSE):
             for msg in ev:
+                if msg.hasElement("responseError"):
+                    err = RuntimeError(
+                        f"Bloomberg request failed: {msg.getElement('responseError')}"
+                    )
+                    err.partial_messages = list(messages)
+                    raise err
                 if msg.hasElement("securityData"):
                     messages.append(msg)
             if ev_type == blpapi.Event.RESPONSE:
